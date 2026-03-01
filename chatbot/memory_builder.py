@@ -68,6 +68,42 @@ def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int,
     logger.info("Memory Index has been created successfully!")
 
 
+def auto_seed_index(index: Chroma, docs_path: Path, chunk_size: int = 512, chunk_overlap: int = 25) -> None:
+    """
+    Automatically seeds the vector store from the docs directory if the collection is empty.
+
+    This is called at application startup so that the chatbot works out-of-the-box
+    without needing to run memory_builder.py separately.
+
+    Args:
+        index (Chroma): The Chroma vector store instance.
+        docs_path (Path): Path to the directory containing Markdown source documents.
+        chunk_size (int): Maximum size of each text chunk. Defaults to 512.
+        chunk_overlap (int): Overlap between consecutive chunks. Defaults to 25.
+    """
+    if index.collection.count() > 0:
+        return
+
+    logger.info("Vector store is empty — seeding from docs directory...")
+    if not docs_path.exists():
+        logger.warning(f"Docs path does not exist: {docs_path}. Skipping auto-seed.")
+        return
+
+    loader = DirectoryLoader(path=docs_path, glob="**/*.md")
+    documents = loader.load()
+    if not documents:
+        logger.warning("No Markdown documents found in docs directory. Skipping auto-seed.")
+        return
+
+    splitter = create_recursive_text_splitter(
+        format=Format.MARKDOWN.value, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+    )
+    chunks = splitter.split_documents(documents)
+    logger.info(f"Auto-seeding vector store with {len(chunks)} chunks from {len(documents)} document(s)...")
+    index.from_chunks(chunks)
+    logger.info("Vector store seeded successfully.")
+
+
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Memory Builder")
     parser.add_argument(
