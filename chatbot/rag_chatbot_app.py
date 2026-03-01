@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 import streamlit as st
-from bot.client.lama_cpp_client import LamaCppClient
+from bot.client.openai_client import OpenAIClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.conversation_handler import answer_with_context, extract_content_after_reasoning, refine_question
 from bot.conversation.ctx_strategy import (
@@ -14,7 +14,6 @@ from bot.conversation.ctx_strategy import (
 )
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_registry import get_model_settings, get_models
 from document_loader.format import Format
 from document_loader.text_splitter import create_recursive_text_splitter
 from eligibility import render_eligibility_checker
@@ -28,11 +27,8 @@ st.set_page_config(page_title="HPV Vaccine Assistant", page_icon="💉", initial
 
 
 @st.cache_resource()
-def init_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
-    model_settings = get_model_settings(model_name)
-    llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
-
-    return llm
+def init_llm_client() -> OpenAIClient:
+    return OpenAIClient()
 
 
 @st.cache_resource()
@@ -53,7 +49,7 @@ def init_index(vector_store_path: Path) -> Chroma:
 
 
 @st.cache_resource()
-def init_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
+def init_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: OpenAIClient) -> BaseSynthesisStrategy:
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
     return ctx_synthesis_strategy
 
@@ -203,7 +199,7 @@ def render_myth_vs_fact(root_folder: Path) -> None:
 
 
 def render_ask_question(
-    llm: LamaCppClient,
+    llm: OpenAIClient,
     ctx_synthesis_strategy: BaseSynthesisStrategy,
     chat_history: ChatHistory,
     index: Chroma,
@@ -306,15 +302,12 @@ def main(parameters) -> None:
         parameters: Parameters for the application.
     """
     root_folder = Path(__file__).resolve().parent.parent
-    model_folder = root_folder / "models"
     vector_store_path = root_folder / "vector_store" / "docs_index"
-    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
 
-    model_name = parameters.model
     synthesis_strategy_name = parameters.synthesis_strategy
 
     init_page(root_folder)
-    llm = init_llm_client(model_folder, model_name)
+    llm = init_llm_client()
     chat_history = init_chat_history(2)
     ctx_synthesis_strategy = init_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = init_index(vector_store_path)
@@ -339,28 +332,14 @@ def main(parameters) -> None:
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="HPV Vaccine Assistant")
 
-    model_list = get_models()
-    default_model = model_list[0]
-
     synthesis_strategy_list = get_ctx_synthesis_strategies()
     default_synthesis_strategy = synthesis_strategy_list[0]
-
-    parser.add_argument(
-        "--model",
-        type=str,
-        choices=model_list,
-        help=f"Model to be used. Defaults to {default_model}.",
-        required=False,
-        const=default_model,
-        nargs="?",
-        default=default_model,
-    )
 
     parser.add_argument(
         "--synthesis-strategy",
         type=str,
         choices=synthesis_strategy_list,
-        help=f"Model to be used. Defaults to {default_synthesis_strategy}.",
+        help=f"Context synthesis strategy to use. Defaults to {default_synthesis_strategy}.",
         required=False,
         const=default_synthesis_strategy,
         nargs="?",
