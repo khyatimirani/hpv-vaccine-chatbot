@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Any, Iterable
 
 import chromadb
@@ -8,6 +9,7 @@ from bot.memory.vector_database.distance_metric import DistanceMetric, get_relev
 from bot.memory.vector_database.id_generator import generate_deterministic_ids
 from chromadb.utils.batch_utils import create_batches
 from cleantext import clean
+from dotenv import load_dotenv
 from entities.document import Document
 
 logger = logging.getLogger(__name__)
@@ -44,14 +46,23 @@ class Chroma:
             distance_metric (DistanceMetric, optional): The distance metric to use for similarity search.
                 Defaults to DistanceMetric.COSINE.
         """
-        if is_persistent:
-            client_settings = chromadb.config.Settings(is_persistent=is_persistent, persist_directory=persist_directory)
-        else:
-            client_settings = chromadb.config.Settings(is_persistent=is_persistent)
+        load_dotenv()
 
         if client is not None:
             self.client = client
+        elif os.environ.get("CHROMA_API_KEY") and os.environ.get("CHROMA_TENANT_ID"):
+            self.client = chromadb.CloudClient(
+                api_key=os.environ["CHROMA_API_KEY"],
+                tenant=os.environ["CHROMA_TENANT_ID"],
+                database="hpv-assitant",
+            )
         else:
+            if is_persistent:
+                client_settings = chromadb.config.Settings(
+                    is_persistent=is_persistent, persist_directory=persist_directory
+                )
+            else:
+                client_settings = chromadb.config.Settings(is_persistent=is_persistent)
             self.client = chromadb.Client(client_settings)
 
         self.embedding = embedding
