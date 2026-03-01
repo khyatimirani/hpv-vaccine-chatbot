@@ -89,7 +89,7 @@ def auto_seed_index(index: Chroma, docs_path: Path, chunk_size: int = 512, chunk
         logger.warning(f"Docs path does not exist: {docs_path}. Skipping auto-seed.")
         return
 
-    loader = DirectoryLoader(path=docs_path, glob="**/*.md")
+    loader = DirectoryLoader(path=docs_path, glob="**/*.txt")
     documents = loader.load()
     if not documents:
         logger.warning("No Markdown documents found in docs directory. Skipping auto-seed.")
