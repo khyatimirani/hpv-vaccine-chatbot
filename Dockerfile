@@ -34,7 +34,6 @@ COPY --from=builder /app/.venv /app/.venv
 COPY chatbot/          ./chatbot/
 COPY docs/             ./docs/
 COPY images/           ./images/
-COPY vector_store/     ./vector_store/
 COPY gunicorn.conf.py  ./
 COPY wsgi.py           ./
 

@@ -22,6 +22,9 @@ tests/
 *.md
 !README.md
 
+# Vector store – persisted remotely via Chroma Cloud; never bake local data into the image
+vector_store/
+
 # Secrets — never bake these into the image
 .env
 .env.*

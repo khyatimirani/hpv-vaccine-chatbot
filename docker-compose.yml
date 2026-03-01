@@ -10,9 +10,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    volumes:
-      # Persist the vector-store index across container restarts
-      - vector_store:/app/vector_store
     expose:
       - "8000"
     healthcheck:
@@ -41,5 +38,4 @@ services:
       - app
 
 volumes:
-  vector_store:
   certbot_webroot:
