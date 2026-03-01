@@ -1,6 +1,7 @@
 from enum import Enum
 
 from bot.model.settings.deep_seek import DeepSeekR1SevenSettings
+from bot.model.settings.groq_llama import GroqLlama31EightSettings, GroqLlama32OneSettings, GroqLlama32ThreeSettings
 from bot.model.settings.llama import Llama31Settings, Llama31ToolSettings, Llama32OneSettings, Llama32ThreeSettings
 from bot.model.settings.openchat import OpenChat35Settings, OpenChat36Settings
 from bot.model.settings.phi import Phi35Settings
@@ -22,6 +23,9 @@ class Model(Enum):
     QWEN_2_5_THREE = "qwen-2.5:3b"
     QWEN_2_5_THREE_MATH_REASONING = "qwen-2.5:3b-math-reasoning"
     DEEP_SEEK_R1_SEVEN = "deep-seek-r1:7b"
+    GROQ_LLAMA_3_1_EIGHT = "groq:llama-3.1:8b"
+    GROQ_LLAMA_3_2_ONE = "groq:llama-3.2:1b"
+    GROQ_LLAMA_3_2_THREE = "groq:llama-3.2:3b"
 
 
 SUPPORTED_MODELS = {
@@ -37,11 +41,25 @@ SUPPORTED_MODELS = {
     Model.QWEN_2_5_THREE.value: Qwen25ThreeSettings,
     Model.QWEN_2_5_THREE_MATH_REASONING.value: Qwen25ThreeMathReasoningSettings,
     Model.DEEP_SEEK_R1_SEVEN.value: DeepSeekR1SevenSettings,
+    Model.GROQ_LLAMA_3_1_EIGHT.value: GroqLlama31EightSettings,
+    Model.GROQ_LLAMA_3_2_ONE.value: GroqLlama32OneSettings,
+    Model.GROQ_LLAMA_3_2_THREE.value: GroqLlama32ThreeSettings,
+}
+
+
+GROQ_MODELS = {
+    Model.GROQ_LLAMA_3_1_EIGHT.value,
+    Model.GROQ_LLAMA_3_2_ONE.value,
+    Model.GROQ_LLAMA_3_2_THREE.value,
 }
 
 
 def get_models():
     return list(SUPPORTED_MODELS.keys())
+
+
+def is_groq_model(model_name: str) -> bool:
+    return model_name in GROQ_MODELS
 
 
 def get_model_settings(model_name: str):

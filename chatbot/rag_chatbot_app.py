@@ -1,9 +1,11 @@
 import argparse
+import os
 import sys
 import time
 from pathlib import Path
 
 import streamlit as st
+from bot.client.groq_client import GroqClient
 from bot.client.lama_cpp_client import LamaCppClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.conversation_handler import answer_with_context, extract_content_after_reasoning, refine_question
@@ -14,7 +16,7 @@ from bot.conversation.ctx_strategy import (
 )
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
-from bot.model.model_registry import get_model_settings, get_models
+from bot.model.model_registry import get_model_settings, get_models, is_groq_model
 from document_loader.format import Format
 from document_loader.text_splitter import create_recursive_text_splitter
 from eligibility import render_eligibility_checker
@@ -28,9 +30,18 @@ st.set_page_config(page_title="HPV Vaccine Assistant", page_icon="💉", initial
 
 
 @st.cache_resource()
-def init_llm_client(model_folder: Path, model_name: str) -> LamaCppClient:
+def init_llm_client(model_folder: Path, model_name: str) -> LamaCppClient | GroqClient:
     model_settings = get_model_settings(model_name)
-    llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
+    if is_groq_model(model_name):
+        if not os.environ.get("GROQ_API_KEY"):
+            st.error(
+                "⚠️ GROQ_API_KEY environment variable is not set. "
+                "Please set it before selecting a Groq model."
+            )
+            st.stop()
+        llm = GroqClient(model_settings=model_settings)
+    else:
+        llm = LamaCppClient(model_folder=model_folder, model_settings=model_settings)
 
     return llm
 
@@ -53,7 +64,9 @@ def init_index(vector_store_path: Path) -> Chroma:
 
 
 @st.cache_resource()
-def init_ctx_synthesis_strategy(ctx_synthesis_strategy_name: str, _llm: LamaCppClient) -> BaseSynthesisStrategy:
+def init_ctx_synthesis_strategy(
+    ctx_synthesis_strategy_name: str, _llm: LamaCppClient | GroqClient
+) -> BaseSynthesisStrategy:
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(ctx_synthesis_strategy_name, llm=_llm)
     return ctx_synthesis_strategy
 
@@ -203,7 +216,7 @@ def render_myth_vs_fact(root_folder: Path) -> None:
 
 
 def render_ask_question(
-    llm: LamaCppClient,
+    llm: LamaCppClient | GroqClient,
     ctx_synthesis_strategy: BaseSynthesisStrategy,
     chat_history: ChatHistory,
     index: Chroma,
