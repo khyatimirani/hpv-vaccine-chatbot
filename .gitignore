@@ -1,3 +1,21 @@
+# Mac
+.DS_Store
+
+# Models (LLMs)
+models/
+*.gguf
+
+# Local docs (large reference files)
+docs/
+
+# Environment variables
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.pyc
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

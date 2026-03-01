@@ -25,7 +25,7 @@ def load_documents(docs_path: Path) -> list[Document]:
     """
     loader = DirectoryLoader(
         path=docs_path,
-        glob="**/*.md",
+        glob="**/*.txt",
         show_progress=True,
     )
     return loader.load()

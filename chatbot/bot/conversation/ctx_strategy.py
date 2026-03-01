@@ -9,7 +9,28 @@ from helpers.log import get_logger
 from bot.client.lama_cpp_client import LamaCppClient
 
 logger = get_logger(__name__)
-nest_asyncio.apply()
+
+# Apply nest_asyncio, but handle uvloop which cannot be patched
+try:
+    loop = asyncio.get_event_loop()
+    if loop.__class__.__module__.startswith("uvloop"):
+        logger.debug("uvloop detected, skipping nest_asyncio patch")
+    else:
+        nest_asyncio.apply()
+except RuntimeError:
+    # No event loop running yet, safe to apply
+    try:
+        nest_asyncio.apply()
+    except ValueError as e:
+        if "uvloop" in str(e).lower():
+            logger.debug("uvloop detected, skipping nest_asyncio patch")
+        else:
+            raise
+except ValueError as e:
+    if "uvloop" in str(e).lower():
+        logger.debug("uvloop detected, skipping nest_asyncio patch")
+    else:
+        raise
 
 
 class SynthesisStrategyType(Enum):

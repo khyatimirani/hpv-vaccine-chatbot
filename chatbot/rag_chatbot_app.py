@@ -83,7 +83,7 @@ def init_page(root_folder: Path) -> None:
         st.write(" ")
 
     with central_column:
-        st.image(str(root_folder / "images/bot.png"), use_column_width="always")
+        st.image(str(root_folder / "images/bot.png"), width="content")
         st.markdown(
             "<h3 style='text-align: center; color: #2e7bcf;'>HPV Vaccine Assistant</h3>"
             "<p style='text-align: center; color: grey; font-size: 0.9em;'>"
