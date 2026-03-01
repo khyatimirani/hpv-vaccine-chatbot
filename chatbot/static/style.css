@@ -1,0 +1,437 @@
+/* =========================================================
+   HPV Vaccine Assistant — Web UI Styles
+   ========================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f4f6fb;
+  color: #222;
+  min-height: 100vh;
+}
+
+/* ----- Header ----- */
+.app-header {
+  background: linear-gradient(135deg, #2e7bcf 0%, #1a4f8a 100%);
+  color: #fff;
+  padding: 18px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header-icon {
+  font-size: 2.4rem;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.header-subtitle {
+  font-size: 0.88rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+/* ----- Tab navigation ----- */
+.tab-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  background: #fff;
+  border-bottom: 2px solid #d0d7e8;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+  color: #2e7bcf;
+}
+
+.tab-btn.active {
+  color: #2e7bcf;
+  border-bottom-color: #2e7bcf;
+  font-weight: 700;
+}
+
+/* ----- Main area ----- */
+.app-main {
+  max-width: 900px;
+  margin: 28px auto 60px;
+  padding: 0 16px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ----- Chat ----- */
+.chat-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  display: flex;
+  flex-direction: column;
+  height: 520px;
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.message {
+  display: flex;
+}
+
+.user-message {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 72%;
+  padding: 11px 16px;
+  border-radius: 18px;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.user-message .message-bubble {
+  background: #2e7bcf;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.assistant-message .message-bubble {
+  background: #edf2fb;
+  color: #222;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid #e6eaf3;
+  background: #fafbff;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid #c2cfe0;
+  border-radius: 24px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.chat-input:focus {
+  border-color: #2e7bcf;
+}
+
+.send-btn {
+  background: #2e7bcf;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.send-btn:hover {
+  background: #1a5ca0;
+}
+
+.chat-actions {
+  padding: 8px 14px 10px;
+  background: #fafbff;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #e6eaf3;
+}
+
+/* ----- Buttons ----- */
+.action-btn {
+  background: #f0f4fb;
+  border: 1.5px solid #c2cfe0;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #444;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.action-btn:hover {
+  background: #dce6f7;
+  border-color: #2e7bcf;
+}
+
+/* ----- Content panels (Myth, Eligibility) ----- */
+.content-panel {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  padding: 28px 32px;
+}
+
+.myth-content {
+  line-height: 1.7;
+  font-size: 0.96rem;
+}
+
+.myth-content h1, .myth-content h2, .myth-content h3 {
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+  color: #1a4f8a;
+}
+
+.myth-content ul, .myth-content ol {
+  padding-left: 1.4em;
+  margin: 0.5em 0;
+}
+
+.myth-content p { margin: 0.5em 0; }
+
+.loading-text { color: #999; font-style: italic; }
+
+/* ----- Eligibility Form ----- */
+.section-heading {
+  font-size: 1.25rem;
+  color: #1a4f8a;
+  margin-bottom: 8px;
+}
+
+.section-info {
+  font-size: 0.91rem;
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.eligibility-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 480px;
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.93rem;
+  margin-top: 6px;
+}
+
+.form-input {
+  padding: 9px 12px;
+  border: 1.5px solid #c2cfe0;
+  border-radius: 8px;
+  font-size: 0.94rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #2e7bcf;
+}
+
+.radio-group {
+  display: flex;
+  gap: 24px;
+  font-size: 0.93rem;
+}
+
+.submit-btn {
+  margin-top: 14px;
+  padding: 11px 28px;
+  background: #2e7bcf;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.96rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: fit-content;
+}
+
+.submit-btn:hover {
+  background: #1a5ca0;
+}
+
+.eligibility-result {
+  margin-top: 20px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.eligibility-result.eligible {
+  background: #e8f5e9;
+  border: 1.5px solid #66bb6a;
+  color: #1b5e20;
+}
+
+.eligibility-result.not-eligible {
+  background: #fff8e1;
+  border: 1.5px solid #ffb300;
+  color: #5d4037;
+}
+
+.eligibility-result ul {
+  padding-left: 1.3em;
+  margin-top: 8px;
+}
+
+/* ----- Sidebar ----- */
+.sidebar-toggle {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  background: #2e7bcf;
+  color: #fff;
+  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  z-index: 200;
+  user-select: none;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0,0,0,.12);
+  padding: 24px 20px;
+  z-index: 300;
+  overflow-y: auto;
+  transition: transform 0.25s ease;
+}
+
+.sidebar.hidden {
+  transform: translateX(110%);
+}
+
+.sidebar-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.sidebar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a4f8a;
+  margin-bottom: 10px;
+}
+
+.sidebar-section-title {
+  font-size: 0.97rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.sidebar-info {
+  font-size: 0.88rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.file-input {
+  font-size: 0.88rem;
+}
+
+.upload-btn {
+  width: 100%;
+  text-align: center;
+}
+
+.upload-result {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  color: #2e7bcf;
+}
+
+/* ----- Thinking indicator ----- */
+.thinking {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #999;
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 6px 14px;
+}
+
+.thinking::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border: 2px solid #c2cfe0;
+  border-top-color: #2e7bcf;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.hidden { display: none !important; }

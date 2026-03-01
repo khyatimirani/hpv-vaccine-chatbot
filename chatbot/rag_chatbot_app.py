@@ -6,7 +6,12 @@ from pathlib import Path
 import streamlit as st
 from bot.client.openai_client import OpenAIClient
 from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_handler import answer_with_context, extract_content_after_reasoning, refine_question
+from bot.conversation.conversation_handler import (
+    answer_with_context,
+    extract_content_after_reasoning,
+    refine_question,
+    trim_response,
+)
 from bot.conversation.ctx_strategy import (
     BaseSynthesisStrategy,
     get_ctx_synthesis_strategies,
@@ -285,6 +290,7 @@ def render_ask_question(
                     else:
                         answer = full_response
 
+                    answer = trim_response(answer, user_input)
                     chat_history.append(f"question: {user_input}, answer: {answer}")
 
                     message_placeholder.markdown(answer)

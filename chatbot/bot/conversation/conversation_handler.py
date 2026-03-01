@@ -2,7 +2,6 @@ import re
 from asyncio import get_event_loop
 from typing import Any
 
-import streamlit as st
 from entities.document import Document
 from helpers.log import get_logger
 
@@ -132,6 +131,44 @@ def answer_with_context(
     return streamer, fmt_prompts
 
 
+def trim_response(response: str, question: str) -> str:
+    """
+    Trim the response to fit within character limits based on the question intent.
+
+    If the question contains "explain" or "detail" (case-insensitive), the response
+    is trimmed to at most 512 characters. Otherwise it is trimmed to at most 200
+    characters. Trimming preserves complete sentences wherever possible.
+
+    Args:
+        response: The full answer text to trim.
+        question: The user question used to determine the character limit.
+
+    Returns:
+        The (possibly trimmed) response string.
+    """
+    question_lower = question.lower()
+    is_detailed = "explain" in question_lower or "detail" in question_lower
+    max_chars = 512 if is_detailed else 200
+
+    if len(response) <= max_chars:
+        return response
+
+    trimmed = response[:max_chars]
+
+    # Prefer trimming at the last sentence boundary within the allowed window
+    last_sentence_end = max(trimmed.rfind("."), trimmed.rfind("!"), trimmed.rfind("?"))
+
+    if last_sentence_end > max_chars // 2:
+        return response[: last_sentence_end + 1]
+
+    # Fall back to trimming at the last word boundary
+    last_space = trimmed.rfind(" ")
+    if last_space > max_chars // 2:
+        return response[:last_space] + "…"
+
+    return trimmed + "…"
+
+
 def extract_content_after_reasoning(text: str, reasoning_stop_tag: str) -> str:
     """
     Extracts and strips the text that follows the `reasoning_stop_tag` tag.
@@ -182,6 +219,8 @@ def stream_response_with_reasoning(
         - The reasoning portion is identified and displayed separately using start and stop tags.
         - The response is updated token by token, with a cursor ("▌") indicating ongoing generation.
     """
+    import streamlit as st  # noqa: PLC0415 - imported lazily to keep module Streamlit-free
+
     message_placeholder = st.empty()
     full_response = ""
     reasoning_response = ""
