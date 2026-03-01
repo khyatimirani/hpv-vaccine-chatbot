@@ -21,7 +21,6 @@ from bot.conversation.conversation_handler import (
     answer_with_context,
     extract_content_after_reasoning,
     refine_question,
-    trim_response,
 )
 from bot.conversation.ctx_strategy import (
     get_ctx_synthesis_strategies,
@@ -91,7 +90,6 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters):
         else:
             answer = full_response
 
-        answer = trim_response(answer, user_input)
         chat_history.append(f"question: {user_input}, answer: {answer}")
 
         source_list = [prettify_source(s) for s in sources]
