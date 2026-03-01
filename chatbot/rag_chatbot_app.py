@@ -20,6 +20,7 @@ from eligibility import render_eligibility_checker
 from entities.document import Document
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
+from memory_builder import auto_seed_index
 
 logger = get_logger(__name__)
 
@@ -311,6 +312,7 @@ def main(parameters) -> None:
     chat_history = init_chat_history(2)
     ctx_synthesis_strategy = init_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
     index = init_index(vector_store_path)
+    auto_seed_index(index, docs_path=root_folder / "docs")
 
     # Handle sidebar document upload and chat history reset
     handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
