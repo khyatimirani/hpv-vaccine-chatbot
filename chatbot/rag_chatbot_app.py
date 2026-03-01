@@ -17,13 +17,14 @@ from bot.memory.vector_database.chroma import Chroma
 from bot.model.model_registry import get_model_settings, get_models
 from document_loader.format import Format
 from document_loader.text_splitter import create_recursive_text_splitter
+from eligibility import render_eligibility_checker
 from entities.document import Document
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 
 logger = get_logger(__name__)
 
-st.set_page_config(page_title="RAG Chatbot", page_icon="💬", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="HPV Vaccine Assistant", page_icon="💉", initial_sidebar_state="collapsed")
 
 
 @st.cache_resource()
@@ -83,7 +84,12 @@ def init_page(root_folder: Path) -> None:
 
     with central_column:
         st.image(str(root_folder / "images/bot.png"), use_column_width="always")
-        st.markdown("""<h4 style='text-align: center; color: grey;'></h4>""", unsafe_allow_html=True)
+        st.markdown(
+            "<h3 style='text-align: center; color: #2e7bcf;'>HPV Vaccine Assistant</h3>"
+            "<p style='text-align: center; color: grey; font-size: 0.9em;'>"
+            "Public health information about HPV vaccination in India — English &amp; Hindi</p>",
+            unsafe_allow_html=True,
+        )
 
     with right_column:
         st.write(" ")
@@ -180,37 +186,46 @@ def display_messages_from_history():
             st.markdown(message["content"])
 
 
-def main(parameters) -> None:
+def render_myth_vs_fact(root_folder: Path) -> None:
     """
-    Main function to run the RAG Chatbot application.
+    Render the Myth vs Fact section by reading the myth_vs_fact.md file.
 
     Args:
-        parameters: Parameters for the application.
+        root_folder: Root folder of the project.
     """
-    root_folder = Path(__file__).resolve().parent.parent
-    model_folder = root_folder / "models"
-    vector_store_path = root_folder / "vector_store" / "docs_index"
-    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
+    myth_vs_fact_path = root_folder / "docs" / "myth_vs_fact.md"
+    st.subheader("📋 HPV Vaccine — Myths vs Facts")
+    if myth_vs_fact_path.exists():
+        content = myth_vs_fact_path.read_text(encoding="utf-8")
+        st.markdown(content)
+    else:
+        st.warning("Myth vs Fact content file not found. Please ensure docs/myth_vs_fact.md exists.")
 
-    model_name = parameters.model
-    synthesis_strategy_name = parameters.synthesis_strategy
+
+def render_ask_question(
+    llm: LamaCppClient,
+    ctx_synthesis_strategy: BaseSynthesisStrategy,
+    chat_history: ChatHistory,
+    index: Chroma,
+    parameters,
+) -> None:
+    """
+    Render the Ask a Question (RAG) tab.
+
+    Args:
+        llm: Language model client.
+        ctx_synthesis_strategy: Context synthesis strategy.
+        chat_history: Chat history instance.
+        index: Chroma vector store index.
+        parameters: CLI parameters.
+    """
     max_new_tokens = parameters.max_new_tokens
-
-    init_page(root_folder)
-    llm = init_llm_client(model_folder, model_name)
-    chat_history = init_chat_history(2)
-    ctx_synthesis_strategy = init_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
-    index = init_index(vector_store_path)
-
-    # Handle sidebar document upload and chat history reset
-    handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
-    handle_chat_history_reset(chat_history)
 
     init_welcome_message()
     display_messages_from_history()
 
     # Supervise user input
-    if user_input := st.chat_input("Input your question!"):
+    if user_input := st.chat_input("Ask a question about the HPV vaccine (English or Hindi)"):
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": user_input})
         # Display user message in chat message container
@@ -242,42 +257,87 @@ def main(parameters) -> None:
 
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
                 else:
-                    full_response += "I did not detect any pertinent chunk of text from the documents. \n\n"
+                    safety_msg = (
+                        "I'm unable to answer that based on the available HPV vaccine information. "
+                        "Please consult a qualified health provider for personalised advice."
+                    )
+                    full_response += safety_msg + "\n\n"
                     message_placeholder.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-        # Display assistant response in chat message container
-        start_time = time.time()
-        with st.chat_message("assistant"):
-            message_placeholder = st.empty()
-            full_response = ""
-            with st.spinner(text="Refining the context and Generating the answer for each text chunk – hang tight! "):
-                streamer, _ = answer_with_context(
-                    llm, ctx_synthesis_strategy, user_input, chat_history, retrieved_contents, max_new_tokens
-                )
-                for token in streamer:
-                    full_response += llm.parse_token(token)
-                    message_placeholder.markdown(full_response + "▌")
+        # Display assistant response in chat message container only if relevant docs were found
+        if retrieved_contents:
+            start_time = time.time()
+            with st.chat_message("assistant"):
+                message_placeholder = st.empty()
+                full_response = ""
+                with st.spinner(
+                    text="Refining the context and Generating the answer for each text chunk – hang tight! "
+                ):
+                    streamer, _ = answer_with_context(
+                        llm, ctx_synthesis_strategy, user_input, chat_history, retrieved_contents, max_new_tokens
+                    )
+                    for token in streamer:
+                        full_response += llm.parse_token(token)
+                        message_placeholder.markdown(full_response + "▌")
 
-                if llm.model_settings.reasoning:
-                    answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
-                    if answer == "":
-                        answer = "I wasn't able to provide the answer; Do you want me to try again?"
-                else:
-                    answer = full_response
+                    if llm.model_settings.reasoning:
+                        answer = extract_content_after_reasoning(full_response, llm.model_settings.reasoning_stop_tag)
+                        if answer == "":
+                            answer = "I wasn't able to provide the answer; Do you want me to try again?"
+                    else:
+                        answer = full_response
 
-                chat_history.append(f"question: {user_input}, answer: {answer}")
+                    chat_history.append(f"question: {user_input}, answer: {answer}")
 
-                message_placeholder.markdown(answer)
+                    message_placeholder.markdown(answer)
 
-        # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": answer})
-        took = time.time() - start_time
-        logger.info(f"\n--- Took {took:.2f} seconds ---")
+            # Add assistant response to chat history
+            st.session_state.messages.append({"role": "assistant", "content": answer})
+            took = time.time() - start_time
+            logger.info(f"\n--- Took {took:.2f} seconds ---")
+
+
+def main(parameters) -> None:
+    """
+    Main function to run the HPV Vaccine Assistant application.
+
+    Args:
+        parameters: Parameters for the application.
+    """
+    root_folder = Path(__file__).resolve().parent.parent
+    model_folder = root_folder / "models"
+    vector_store_path = root_folder / "vector_store" / "docs_index"
+    Path(model_folder).parent.mkdir(parents=True, exist_ok=True)
+
+    model_name = parameters.model
+    synthesis_strategy_name = parameters.synthesis_strategy
+
+    init_page(root_folder)
+    llm = init_llm_client(model_folder, model_name)
+    chat_history = init_chat_history(2)
+    ctx_synthesis_strategy = init_ctx_synthesis_strategy(synthesis_strategy_name, _llm=llm)
+    index = init_index(vector_store_path)
+
+    # Handle sidebar document upload and chat history reset
+    handle_document_upload(index, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap)
+    handle_chat_history_reset(chat_history)
+
+    # Three main tabs
+    tab_ask, tab_myth, tab_eligibility = st.tabs(["💬 Ask a Question", "📋 Myth vs Fact", "💉 Eligibility Checker"])
+
+    with tab_ask:
+        render_ask_question(llm, ctx_synthesis_strategy, chat_history, index, parameters)
+
+    with tab_myth:
+        render_myth_vs_fact(root_folder)
+
+    with tab_eligibility:
+        render_eligibility_checker()
 
 
 def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="RAG Chatbot")
+    parser = argparse.ArgumentParser(description="HPV Vaccine Assistant")
 
     model_list = get_models()
     default_model = model_list[0]
