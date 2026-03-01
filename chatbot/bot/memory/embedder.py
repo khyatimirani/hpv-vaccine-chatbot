@@ -4,7 +4,12 @@ import sentence_transformers
 
 
 class Embedder:
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2", cache_folder: str | None = None, **kwargs: Any):
+    def __init__(
+        self,
+        model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        cache_folder: str | None = None,
+        **kwargs: Any,
+    ):
         """
         Initialize the Embedder class with the specified parameters.
 
