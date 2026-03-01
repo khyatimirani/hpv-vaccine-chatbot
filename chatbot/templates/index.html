@@ -3,118 +3,176 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HPV Vaccine Assistant</title>
+  <title>HPV Vaccine Saathi 🌸</title>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <!-- Header -->
-  <header class="app-header">
-    <div class="header-inner">
-      <span class="header-icon">💉</span>
-      <div>
-        <h1 class="header-title">HPV Vaccine Assistant</h1>
-        <p class="header-subtitle">Public health information about HPV vaccination in India — English &amp; Hindi</p>
-      </div>
+
+  <!-- ===== SCREEN 1: LANDING ===== -->
+  <div id="screen-landing" class="screen screen-landing">
+    <div class="landing-content">
+      <img src="/images/bot.png" alt="HPV Vaccine Saathi Mascot" class="mascot-img" />
+      <h1 class="landing-title">HPV Vaccine Saathi 🌸</h1>
+      <p class="landing-subtitle">Trusted information about HPV vaccination in India</p>
+      <p class="landing-desc">Get safe, reliable answers about the HPV vaccine — in your language, at your own pace.</p>
+      <button id="get-started-btn" class="cta-btn">Get Started</button>
     </div>
-  </header>
+  </div>
 
-  <!-- Tab navigation -->
-  <nav class="tab-nav">
-    <button class="tab-btn active" data-tab="chat">💬 Ask a Question</button>
-    <button class="tab-btn" data-tab="myth">📋 Myth vs Fact</button>
-    <button class="tab-btn" data-tab="eligibility">💉 Eligibility Checker</button>
-  </nav>
+  <!-- ===== SCREEN 2: ONBOARDING FORM ===== -->
+  <div id="screen-onboarding" class="screen screen-onboarding fade-hidden">
+    <div class="onboarding-card">
+      <img src="/images/bot-small.png" alt="Mascot" class="onboarding-mascot" />
+      <h2 class="onboarding-title">Let's get to know you</h2>
+      <form id="onboarding-form" novalidate>
+        <div class="field-group">
+          <label for="user-name" class="field-label">Your Name <span class="required-star">*</span></label>
+          <input id="user-name" type="text" class="field-input" placeholder="Enter your name" autocomplete="given-name" />
+          <p class="field-helper">So I can address you properly.</p>
+        </div>
+        <div class="field-group">
+          <label for="user-email" class="field-label">Email <span class="optional-tag">(optional)</span></label>
+          <input id="user-email" type="email" class="field-input" placeholder="Enter your email (optional)" autocomplete="email" />
+          <p class="field-helper">Only if you'd like updates. We respect your privacy.</p>
+        </div>
+        <div class="field-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="disclaimer-check" />
+            <span>I understand this assistant provides information only and not medical diagnosis.</span>
+          </label>
+        </div>
+        <div id="onboarding-error" class="onboarding-error fade-hidden" role="alert"></div>
+        <button type="submit" class="cta-btn">Continue</button>
+      </form>
+    </div>
+  </div>
 
-  <main class="app-main">
+  <!-- ===== SCREEN 3: TRANSITION + VIDEO ===== -->
+  <div id="screen-transition" class="screen screen-transition fade-hidden">
+    <div class="transition-content">
+      <p class="thank-you-msg" id="thank-you-msg">Thank you 🌸</p>
+      <p class="transition-sub">Let's get you the right information.</p>
+      <div class="video-wrapper">
+        <video id="intro-video" class="intro-video" controls preload="metadata">
+          <source src="/images/bot_video.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+      </div>
+      <button id="start-chatting-btn" class="cta-btn">Start Chatting →</button>
+    </div>
+  </div>
 
-    <!-- ===== Ask a Question Tab ===== -->
-    <section id="tab-chat" class="tab-panel active">
-      <div class="chat-container">
-        <div id="chat-messages" class="chat-messages">
-          <div class="message assistant-message">
-            <div class="message-bubble">How can I help you today?</div>
+  <!-- ===== SCREEN 4: MAIN APP ===== -->
+  <div id="screen-app" class="screen fade-hidden">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-inner">
+        <img src="/images/bot-small.png" alt="Mascot" class="header-mascot" />
+        <div class="header-text">
+          <h1 class="header-title">HPV Vaccine Saathi 🌸</h1>
+          <p class="header-subtitle">Public health information about HPV vaccination in India — English &amp; Hindi</p>
+        </div>
+        <span id="header-greeting" class="header-greeting"></span>
+      </div>
+    </header>
+
+    <!-- Tab navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="chat">💬 Ask a Question</button>
+      <button class="tab-btn" data-tab="myth">📋 Myth vs Fact</button>
+      <button class="tab-btn" data-tab="eligibility">💉 Eligibility Checker</button>
+    </nav>
+
+    <main class="app-main">
+
+      <!-- ===== Ask a Question Tab ===== -->
+      <section id="tab-chat" class="tab-panel active">
+        <div class="chat-container">
+          <div id="chat-messages" class="chat-messages"></div>
+          <div id="prompt-chips" class="prompt-chips"></div>
+          <form id="chat-form" class="chat-form" autocomplete="off">
+            <input
+              id="chat-input"
+              type="text"
+              class="chat-input"
+              placeholder="Ask a question about the HPV vaccine (English or Hindi)…"
+              aria-label="Chat message"
+            />
+            <button type="submit" class="send-btn" aria-label="Send">&#9654;</button>
+          </form>
+          <div class="chat-actions">
+            <button id="clear-btn" class="action-btn">🗑️ Clear Conversation</button>
           </div>
         </div>
-        <form id="chat-form" class="chat-form" autocomplete="off">
-          <input
-            id="chat-input"
-            type="text"
-            class="chat-input"
-            placeholder="Ask a question about the HPV vaccine (English or Hindi)…"
-            aria-label="Chat message"
-          />
-          <button type="submit" class="send-btn" aria-label="Send">&#9654;</button>
-        </form>
-        <div class="chat-actions">
-          <button id="clear-btn" class="action-btn">🗑️ Clear Conversation</button>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ===== Myth vs Fact Tab ===== -->
-    <section id="tab-myth" class="tab-panel hidden">
-      <div class="content-panel">
-        <div id="myth-content" class="myth-content">
-          <p class="loading-text">Loading…</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== Eligibility Checker Tab ===== -->
-    <section id="tab-eligibility" class="tab-panel hidden">
-      <div class="content-panel eligibility-panel">
-        <h2 class="section-heading">💉 HPV Vaccine Eligibility Checker</h2>
-        <p class="section-info">
-          Answer the questions below to find out whether you or someone you know may be eligible
-          for the HPV vaccine in India. <em>This is for informational purposes only and is not a
-          substitute for professional medical advice.</em>
-        </p>
-        <form id="eligibility-form" class="eligibility-form">
-          <label class="form-label" for="age">Age (in years)</label>
-          <input id="age" name="age" type="number" min="1" max="120" value="12" class="form-input" />
-
-          <label class="form-label" for="gender">Gender</label>
-          <select id="gender" name="gender" class="form-input">
-            <option value="Female">Female</option>
-            <option value="Male">Male</option>
-            <option value="Other / Prefer not to say">Other / Prefer not to say</option>
-          </select>
-
-          <label class="form-label">Have you already completed HPV vaccination?</label>
-          <div class="radio-group">
-            <label><input type="radio" name="already_vaccinated" value="No" checked /> No</label>
-            <label><input type="radio" name="already_vaccinated" value="Yes" /> Yes</label>
+      <!-- ===== Myth vs Fact Tab ===== -->
+      <section id="tab-myth" class="tab-panel hidden">
+        <div class="content-panel">
+          <div id="myth-content" class="myth-content">
+            <p class="loading-text">Loading…</p>
           </div>
+        </div>
+      </section>
 
-          <label class="form-label">Are you currently pregnant? (if applicable)</label>
-          <div class="radio-group">
-            <label><input type="radio" name="is_pregnant" value="No" checked /> No</label>
-            <label><input type="radio" name="is_pregnant" value="Yes" /> Yes</label>
-          </div>
+      <!-- ===== Eligibility Checker Tab ===== -->
+      <section id="tab-eligibility" class="tab-panel hidden">
+        <div class="content-panel eligibility-panel">
+          <h2 class="section-heading">💉 HPV Vaccine Eligibility Checker</h2>
+          <p class="section-info">
+            Answer the questions below to find out whether you or someone you know may be eligible
+            for the HPV vaccine in India. <em>This is for informational purposes only and is not a
+            substitute for professional medical advice.</em>
+          </p>
+          <form id="eligibility-form" class="eligibility-form">
+            <label class="form-label" for="age">Age (in years)</label>
+            <input id="age" name="age" type="number" min="1" max="120" value="12" class="form-input" />
 
-          <button type="submit" class="submit-btn">Check Eligibility</button>
-        </form>
+            <label class="form-label" for="gender">Gender</label>
+            <select id="gender" name="gender" class="form-input">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other / Prefer not to say">Other / Prefer not to say</option>
+            </select>
 
-        <div id="eligibility-result" class="eligibility-result hidden"></div>
-      </div>
-    </section>
+            <label class="form-label">Have you already completed HPV vaccination?</label>
+            <div class="radio-group">
+              <label><input type="radio" name="already_vaccinated" value="No" checked /> No</label>
+              <label><input type="radio" name="already_vaccinated" value="Yes" /> Yes</label>
+            </div>
 
-  </main>
+            <label class="form-label">Are you currently pregnant? (if applicable)</label>
+            <div class="radio-group">
+              <label><input type="radio" name="is_pregnant" value="No" checked /> No</label>
+              <label><input type="radio" name="is_pregnant" value="Yes" /> Yes</label>
+            </div>
 
-  <!-- Sidebar toggle for document upload (collapsible) -->
-  <div id="sidebar-toggle" class="sidebar-toggle" title="Tools &amp; Settings">&#9776;</div>
-  <aside id="sidebar" class="sidebar hidden">
-    <button id="sidebar-close" class="sidebar-close" aria-label="Close sidebar">&#10005;</button>
-    <h2 class="sidebar-title">Tools &amp; Settings</h2>
-    <hr />
-    <h3 class="sidebar-section-title">📄 Upload Document</h3>
-    <p class="sidebar-info">Upload a Markdown file to add to the knowledge base.</p>
-    <form id="upload-form" class="upload-form" enctype="multipart/form-data">
-      <input type="file" id="upload-file" name="file" accept=".md,.markdown" class="file-input" />
-      <button type="submit" class="action-btn upload-btn">📥 Add to Knowledge Base</button>
-    </form>
-    <div id="upload-result" class="upload-result"></div>
-  </aside>
+            <button type="submit" class="submit-btn">Check Eligibility</button>
+          </form>
+
+          <div id="eligibility-result" class="eligibility-result hidden"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Sidebar toggle for document upload (collapsible) -->
+    <div id="sidebar-toggle" class="sidebar-toggle" title="Tools &amp; Settings">&#9776;</div>
+    <aside id="sidebar" class="sidebar hidden">
+      <button id="sidebar-close" class="sidebar-close" aria-label="Close sidebar">&#10005;</button>
+      <h2 class="sidebar-title">Tools &amp; Settings</h2>
+      <hr />
+      <h3 class="sidebar-section-title">📄 Upload Document</h3>
+      <p class="sidebar-info">Upload a Markdown file to add to the knowledge base.</p>
+      <form id="upload-form" class="upload-form" enctype="multipart/form-data">
+        <input type="file" id="upload-file" name="file" accept=".md,.markdown" class="file-input" />
+        <button type="submit" class="action-btn upload-btn">📥 Add to Knowledge Base</button>
+      </form>
+      <div id="upload-result" class="upload-result"></div>
+    </aside>
+
+  </div><!-- end screen-app -->
 
   <script src="/static/app.js"></script>
 </body>

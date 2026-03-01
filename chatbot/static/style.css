@@ -1,5 +1,5 @@
 /* =========================================================
-   HPV Vaccine Assistant — Web UI Styles
+   HPV Vaccine Saathi — Web UI Styles
    ========================================================= */
 
 *, *::before, *::after {
@@ -15,35 +15,308 @@ body {
   min-height: 100vh;
 }
 
+/* ----- Screen system & fade transitions ----- */
+.screen {
+  min-height: 100vh;
+  transition: opacity 0.3s ease;
+}
+
+.fade-hidden {
+  display: none !important;
+  opacity: 0;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* =========================================================
+   SCREEN 1 — LANDING
+   ========================================================= */
+
+.screen-landing {
+  background: linear-gradient(135deg, #fce4ec 0%, #ffd7c4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.landing-content {
+  text-align: center;
+  max-width: 480px;
+}
+
+.mascot-img {
+  width: 140px;
+  height: auto;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.12));
+}
+
+.landing-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #c0395a;
+  margin-bottom: 10px;
+}
+
+.landing-subtitle {
+  font-size: 1.1rem;
+  color: #6d3250;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.landing-desc {
+  font-size: 0.95rem;
+  color: #7a4a5e;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.cta-btn {
+  background: #c0395a;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 14px 40px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(192,57,90,.35);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+
+.cta-btn:hover {
+  background: #a82e4c;
+  box-shadow: 0 6px 18px rgba(192,57,90,.45);
+}
+
+.cta-btn:active {
+  transform: scale(0.97);
+}
+
+/* =========================================================
+   SCREEN 2 — ONBOARDING FORM
+   ========================================================= */
+
+.screen-onboarding {
+  background: linear-gradient(135deg, #fce4ec 0%, #ffd7c4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.onboarding-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(192,57,90,.14);
+  padding: 40px 36px;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+}
+
+.onboarding-mascot {
+  width: 72px;
+  height: auto;
+  margin-bottom: 16px;
+}
+
+.onboarding-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #c0395a;
+  margin-bottom: 28px;
+}
+
+.field-group {
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #4a2030;
+  margin-bottom: 6px;
+}
+
+.required-star {
+  color: #c0395a;
+}
+
+.optional-tag {
+  font-weight: 400;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.field-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #e8c5ce;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  background: #fff9fb;
+}
+
+.field-input:focus {
+  border-color: #c0395a;
+  background: #fff;
+}
+
+.field-helper {
+  font-size: 0.82rem;
+  color: #999;
+  margin-top: 5px;
+}
+
+.checkbox-group {
+  margin-top: 6px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #5a3040;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 2px;
+  accent-color: #c0395a;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.onboarding-error {
+  background: #fdecea;
+  color: #c0395a;
+  border: 1px solid #f5b5be;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.onboarding-card .cta-btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* =========================================================
+   SCREEN 3 — TRANSITION + VIDEO
+   ========================================================= */
+
+.screen-transition {
+  background: linear-gradient(135deg, #fce4ec 0%, #ffd7c4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.transition-content {
+  text-align: center;
+  max-width: 640px;
+  width: 100%;
+}
+
+.thank-you-msg {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #c0395a;
+  margin-bottom: 10px;
+}
+
+.transition-sub {
+  font-size: 1.05rem;
+  color: #7a4a5e;
+  margin-bottom: 28px;
+}
+
+.video-wrapper {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0,0,0,.14);
+  background: #000;
+  margin-bottom: 28px;
+}
+
+.intro-video {
+  width: 100%;
+  display: block;
+  max-height: 380px;
+  object-fit: contain;
+}
+
+/* =========================================================
+   SCREEN 4 — MAIN APP
+   ========================================================= */
+
+.screen-app-active {
+  display: block;
+}
+
 /* ----- Header ----- */
 .app-header {
-  background: linear-gradient(135deg, #2e7bcf 0%, #1a4f8a 100%);
+  background: linear-gradient(135deg, #c0395a 0%, #7a1c3a 100%);
   color: #fff;
-  padding: 18px 24px;
+  padding: 14px 24px;
   box-shadow: 0 2px 8px rgba(0,0,0,.18);
 }
 
 .header-inner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   max-width: 900px;
   margin: 0 auto;
 }
 
-.header-icon {
-  font-size: 2.4rem;
+.header-mascot {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex: 1;
 }
 
 .header-title {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
 }
 
 .header-subtitle {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   opacity: 0.85;
   margin-top: 2px;
+}
+
+.header-greeting {
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.92;
+  white-space: nowrap;
 }
 
 /* ----- Tab navigation ----- */
@@ -52,7 +325,7 @@ body {
   justify-content: center;
   gap: 0;
   background: #fff;
-  border-bottom: 2px solid #d0d7e8;
+  border-bottom: 2px solid #f0d0d8;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 
@@ -69,12 +342,12 @@ body {
 }
 
 .tab-btn:hover {
-  color: #2e7bcf;
+  color: #c0395a;
 }
 
 .tab-btn.active {
-  color: #2e7bcf;
-  border-bottom-color: #2e7bcf;
+  color: #c0395a;
+  border-bottom-color: #c0395a;
   font-weight: 700;
 }
 
@@ -127,29 +400,55 @@ body {
 }
 
 .user-message .message-bubble {
-  background: #2e7bcf;
+  background: #c0395a;
   color: #fff;
   border-bottom-right-radius: 4px;
 }
 
 .assistant-message .message-bubble {
-  background: #edf2fb;
+  background: #fdeef2;
   color: #222;
   border-bottom-left-radius: 4px;
+}
+
+/* ----- Prompt chips ----- */
+.prompt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px 4px;
+  border-top: 1px solid #f0dde2;
+}
+
+.prompt-chip {
+  background: #fff0f4;
+  border: 1.5px solid #e8c5ce;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.83rem;
+  color: #c0395a;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  font-weight: 500;
+}
+
+.prompt-chip:hover {
+  background: #fce4ec;
+  border-color: #c0395a;
 }
 
 .chat-form {
   display: flex;
   gap: 8px;
   padding: 12px 14px;
-  border-top: 1px solid #e6eaf3;
-  background: #fafbff;
+  border-top: 1px solid #f0dde2;
+  background: #fffbfc;
 }
 
 .chat-input {
   flex: 1;
   padding: 10px 14px;
-  border: 1.5px solid #c2cfe0;
+  border: 1.5px solid #e8c5ce;
   border-radius: 24px;
   font-size: 0.95rem;
   outline: none;
@@ -157,11 +456,11 @@ body {
 }
 
 .chat-input:focus {
-  border-color: #2e7bcf;
+  border-color: #c0395a;
 }
 
 .send-btn {
-  background: #2e7bcf;
+  background: #c0395a;
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -174,21 +473,21 @@ body {
 }
 
 .send-btn:hover {
-  background: #1a5ca0;
+  background: #a82e4c;
 }
 
 .chat-actions {
   padding: 8px 14px 10px;
-  background: #fafbff;
+  background: #fffbfc;
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid #e6eaf3;
+  border-top: 1px solid #f0dde2;
 }
 
 /* ----- Buttons ----- */
 .action-btn {
-  background: #f0f4fb;
-  border: 1.5px solid #c2cfe0;
+  background: #f9f0f3;
+  border: 1.5px solid #e8c5ce;
   border-radius: 8px;
   padding: 7px 16px;
   font-size: 0.9rem;
@@ -198,8 +497,8 @@ body {
 }
 
 .action-btn:hover {
-  background: #dce6f7;
-  border-color: #2e7bcf;
+  background: #fce4ec;
+  border-color: #c0395a;
 }
 
 /* ----- Content panels (Myth, Eligibility) ----- */
@@ -218,7 +517,7 @@ body {
 .myth-content h1, .myth-content h2, .myth-content h3 {
   margin-top: 1.2em;
   margin-bottom: 0.4em;
-  color: #1a4f8a;
+  color: #7a1c3a;
 }
 
 .myth-content ul, .myth-content ol {
@@ -233,7 +532,7 @@ body {
 /* ----- Eligibility Form ----- */
 .section-heading {
   font-size: 1.25rem;
-  color: #1a4f8a;
+  color: #7a1c3a;
   margin-bottom: 8px;
 }
 
@@ -259,7 +558,7 @@ body {
 
 .form-input {
   padding: 9px 12px;
-  border: 1.5px solid #c2cfe0;
+  border: 1.5px solid #e8c5ce;
   border-radius: 8px;
   font-size: 0.94rem;
   outline: none;
@@ -267,7 +566,7 @@ body {
 }
 
 .form-input:focus {
-  border-color: #2e7bcf;
+  border-color: #c0395a;
 }
 
 .radio-group {
@@ -279,7 +578,7 @@ body {
 .submit-btn {
   margin-top: 14px;
   padding: 11px 28px;
-  background: #2e7bcf;
+  background: #c0395a;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -291,7 +590,7 @@ body {
 }
 
 .submit-btn:hover {
-  background: #1a5ca0;
+  background: #a82e4c;
 }
 
 .eligibility-result {
@@ -324,7 +623,7 @@ body {
   position: fixed;
   top: 18px;
   right: 18px;
-  background: #2e7bcf;
+  background: #c0395a;
   color: #fff;
   border-radius: 8px;
   width: 42px;
@@ -371,7 +670,7 @@ body {
 .sidebar-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1a4f8a;
+  color: #7a1c3a;
   margin-bottom: 10px;
 }
 
@@ -405,7 +704,7 @@ body {
 .upload-result {
   margin-top: 10px;
   font-size: 0.88rem;
-  color: #2e7bcf;
+  color: #c0395a;
 }
 
 /* ----- Thinking indicator ----- */
@@ -423,8 +722,8 @@ body {
   content: '';
   width: 14px;
   height: 14px;
-  border: 2px solid #c2cfe0;
-  border-top-color: #2e7bcf;
+  border: 2px solid #e8c5ce;
+  border-top-color: #c0395a;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   display: inline-block;

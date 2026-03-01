@@ -38,7 +38,7 @@ from document_loader.format import Format
 from document_loader.text_splitter import create_recursive_text_splitter
 from eligibility import check_eligibility
 from entities.document import Document
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 from memory_builder import auto_seed_index
@@ -182,6 +182,10 @@ def create_app(parameters) -> Flask:
     @app.route("/")
     def home():
         return render_template("index.html")
+
+    @app.route("/images/<filename>")
+    def serve_image(filename):
+        return send_from_directory(ROOT_FOLDER / "images", filename)
 
     @app.route("/api/myth-vs-fact")
     def myth_vs_fact():
