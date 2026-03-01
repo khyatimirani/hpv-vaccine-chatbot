@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HPV Vaccine Assistant</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <span class="header-icon">💉</span>
+      <div>
+        <h1 class="header-title">HPV Vaccine Assistant</h1>
+        <p class="header-subtitle">Public health information about HPV vaccination in India — English &amp; Hindi</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tab navigation -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="chat">💬 Ask a Question</button>
+    <button class="tab-btn" data-tab="myth">📋 Myth vs Fact</button>
+    <button class="tab-btn" data-tab="eligibility">💉 Eligibility Checker</button>
+  </nav>
+
+  <main class="app-main">
+
+    <!-- ===== Ask a Question Tab ===== -->
+    <section id="tab-chat" class="tab-panel active">
+      <div class="chat-container">
+        <div id="chat-messages" class="chat-messages">
+          <div class="message assistant-message">
+            <div class="message-bubble">How can I help you today?</div>
+          </div>
+        </div>
+        <form id="chat-form" class="chat-form" autocomplete="off">
+          <input
+            id="chat-input"
+            type="text"
+            class="chat-input"
+            placeholder="Ask a question about the HPV vaccine (English or Hindi)…"
+            aria-label="Chat message"
+          />
+          <button type="submit" class="send-btn" aria-label="Send">&#9654;</button>
+        </form>
+        <div class="chat-actions">
+          <button id="clear-btn" class="action-btn">🗑️ Clear Conversation</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Myth vs Fact Tab ===== -->
+    <section id="tab-myth" class="tab-panel hidden">
+      <div class="content-panel">
+        <div id="myth-content" class="myth-content">
+          <p class="loading-text">Loading…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Eligibility Checker Tab ===== -->
+    <section id="tab-eligibility" class="tab-panel hidden">
+      <div class="content-panel eligibility-panel">
+        <h2 class="section-heading">💉 HPV Vaccine Eligibility Checker</h2>
+        <p class="section-info">
+          Answer the questions below to find out whether you or someone you know may be eligible
+          for the HPV vaccine in India. <em>This is for informational purposes only and is not a
+          substitute for professional medical advice.</em>
+        </p>
+        <form id="eligibility-form" class="eligibility-form">
+          <label class="form-label" for="age">Age (in years)</label>
+          <input id="age" name="age" type="number" min="1" max="120" value="12" class="form-input" />
+
+          <label class="form-label" for="gender">Gender</label>
+          <select id="gender" name="gender" class="form-input">
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Other / Prefer not to say">Other / Prefer not to say</option>
+          </select>
+
+          <label class="form-label">Have you already completed HPV vaccination?</label>
+          <div class="radio-group">
+            <label><input type="radio" name="already_vaccinated" value="No" checked /> No</label>
+            <label><input type="radio" name="already_vaccinated" value="Yes" /> Yes</label>
+          </div>
+
+          <label class="form-label">Are you currently pregnant? (if applicable)</label>
+          <div class="radio-group">
+            <label><input type="radio" name="is_pregnant" value="No" checked /> No</label>
+            <label><input type="radio" name="is_pregnant" value="Yes" /> Yes</label>
+          </div>
+
+          <button type="submit" class="submit-btn">Check Eligibility</button>
+        </form>
+
+        <div id="eligibility-result" class="eligibility-result hidden"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Sidebar toggle for document upload (collapsible) -->
+  <div id="sidebar-toggle" class="sidebar-toggle" title="Tools &amp; Settings">&#9776;</div>
+  <aside id="sidebar" class="sidebar hidden">
+    <button id="sidebar-close" class="sidebar-close" aria-label="Close sidebar">&#10005;</button>
+    <h2 class="sidebar-title">Tools &amp; Settings</h2>
+    <hr />
+    <h3 class="sidebar-section-title">📄 Upload Document</h3>
+    <p class="sidebar-info">Upload a Markdown file to add to the knowledge base.</p>
+    <form id="upload-form" class="upload-form" enctype="multipart/form-data">
+      <input type="file" id="upload-file" name="file" accept=".md,.markdown" class="file-input" />
+      <button type="submit" class="action-btn upload-btn">📥 Add to Knowledge Base</button>
+    </form>
+    <div id="upload-result" class="upload-result"></div>
+  </aside>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
