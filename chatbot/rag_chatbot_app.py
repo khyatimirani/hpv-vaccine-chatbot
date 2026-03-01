@@ -16,6 +16,12 @@ from bot.conversation.ctx_strategy import (
     get_ctx_synthesis_strategies,
     get_ctx_synthesis_strategy,
 )
+from bot.conversation.intent_classifier import (
+    PREDEFINED_RESPONSES,
+    VALID_HEALTH_QUERY,
+    classify_intent,
+    get_rag_query,
+)
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from document_loader.format import Format
@@ -233,6 +239,17 @@ def render_ask_question(
         with st.chat_message("user"):
             st.markdown(user_input)
 
+        # Pre-RAG intent classification — respond directly for non-health queries
+        intent = classify_intent(user_input)
+        if intent != VALID_HEALTH_QUERY:
+            direct_response = PREDEFINED_RESPONSES[intent]
+            with st.chat_message("assistant"):
+                st.markdown(direct_response)
+            st.session_state.messages.append({"role": "assistant", "content": direct_response})
+            return
+
+        rag_input = get_rag_query(user_input)
+
         # Display retrieved documents with content previews, and updates the chat interface with the assistant's
         # responses.
         with st.chat_message("assistant"):
@@ -242,7 +259,7 @@ def render_ask_question(
                 text="Refining the question and Retrieving the docs – hang tight! This should take seconds."
             ):
                 refined_user_input = refine_question(
-                    llm, user_input, chat_history=chat_history, max_new_tokens=max_new_tokens
+                    llm, rag_input, chat_history=chat_history, max_new_tokens=max_new_tokens
                 )
                 retrieved_contents, sources = index.similarity_search_with_threshold(
                     query=refined_user_input, k=parameters.k
@@ -276,7 +293,7 @@ def render_ask_question(
                     text="Refining the context and Generating the answer for each text chunk – hang tight! "
                 ):
                     streamer, _ = answer_with_context(
-                        llm, ctx_synthesis_strategy, user_input, chat_history, retrieved_contents, max_new_tokens
+                        llm, ctx_synthesis_strategy, rag_input, chat_history, retrieved_contents, max_new_tokens
                     )
                     for token in streamer:
                         full_response += llm.parse_token(token)
@@ -289,7 +306,7 @@ def render_ask_question(
                     else:
                         answer = full_response
 
-                    chat_history.append(f"question: {user_input}, answer: {answer}")
+                    chat_history.append(f"question: {rag_input}, answer: {answer}")
 
                     message_placeholder.markdown(answer)
 

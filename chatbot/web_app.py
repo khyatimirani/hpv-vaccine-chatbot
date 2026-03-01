@@ -26,6 +26,12 @@ from bot.conversation.ctx_strategy import (
     get_ctx_synthesis_strategies,
     get_ctx_synthesis_strategy,
 )
+from bot.conversation.intent_classifier import (
+    PREDEFINED_RESPONSES,
+    VALID_HEALTH_QUERY,
+    classify_intent,
+    get_rag_query,
+)
 from bot.memory.embedder import Embedder
 from bot.memory.vector_database.chroma import Chroma
 from document_loader.format import Format
@@ -63,7 +69,13 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters):
         return jsonify({"error": "Empty message"}), 400
 
     try:
-        refined_input = refine_question(llm, user_input, chat_history=chat_history, max_new_tokens=128)
+        # Pre-RAG intent classification — skip RAG for non-health queries
+        intent = classify_intent(user_input)
+        if intent != VALID_HEALTH_QUERY:
+            return jsonify({"answer": PREDEFINED_RESPONSES[intent], "sources": []})
+
+        rag_input = get_rag_query(user_input)
+        refined_input = refine_question(llm, rag_input, chat_history=chat_history, max_new_tokens=128)
         retrieved_contents, sources = index.similarity_search_with_threshold(
             query=refined_input, k=parameters.k
         )
@@ -76,7 +88,7 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters):
             return jsonify({"answer": safety_msg, "sources": []})
 
         streamer, _ = answer_with_context(
-            llm, ctx_synthesis_strategy, user_input, chat_history, retrieved_contents, parameters.max_new_tokens
+            llm, ctx_synthesis_strategy, rag_input, chat_history, retrieved_contents, parameters.max_new_tokens
         )
 
         full_response = ""
@@ -90,7 +102,7 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters):
         else:
             answer = full_response
 
-        chat_history.append(f"question: {user_input}, answer: {answer}")
+        chat_history.append(f"question: {rag_input}, answer: {answer}")
 
         source_list = [prettify_source(s) for s in sources]
         return jsonify({"answer": answer, "sources": source_list})
