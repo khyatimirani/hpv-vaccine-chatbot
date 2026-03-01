@@ -1,4 +1,4 @@
-.PHONY: check install setup update test clean
+.PHONY: check install setup update test clean deploy
 
 llama_cpp_file=version/llama_cpp
 llama_cpp_version=`cat $(llama_cpp_file)`
@@ -53,3 +53,8 @@ clean:
 	echo "Cleaning the cache..."
 	rm -rf .pytest_cache
 	rm -rf .ruff_cache
+
+deploy:
+	echo "Building and starting production containers..."
+	docker compose build --no-cache
+	docker compose up -d

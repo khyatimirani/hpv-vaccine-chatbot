@@ -1,0 +1,30 @@
+# Dependencies / build artefacts
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Models (can be very large)
+models/
+
+# Test infrastructure
+tests/
+.pytest_cache/
+.ruff_cache/
+
+# Development / IDE files
+.git/
+.github/
+.pre-commit-config.yaml
+*.md
+!README.md
+
+# Secrets — never bake these into the image
+.env
+.env.*
+
+# macOS artefacts
+.DS_Store
