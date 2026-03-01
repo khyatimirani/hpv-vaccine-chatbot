@@ -11,19 +11,12 @@ dynamic = ["dependencies", "requires-python"]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
-torch = [
-    { version = "~=2.5.1", source = "pytorch", platform = "!=darwin" },
-    { version = "~=2.5.1", source = "PyPI", platform = "darwin" }
-]
-sentence-transformers = { version = "~=5.0.0" }
-sentencepiece = "~=0.2.1"
 tqdm = "~=4.67.0"
 requests = "~=2.32.0"
 numpy = "~=1.26.4"
 streamlit = "~=1.37.0"
 unstructured = { version = "~=0.20.2", extras = ["md"] }
 chromadb = "~=1.5.0"
-transformers = "~=4.57.6"
 rich = "~=13.4.2"
 pyfiglet = "~=0.7"
 clean-text = "~=0.7.1"
@@ -42,11 +35,6 @@ pytest-asyncio = "~=0.23.6"
 pre-commit = "~=3.6.0"
 ruff = "~=0.6.4"
 httpx = "~=0.28.1"
-
-[[tool.poetry.source]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cu121"
-priority = "explicit"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

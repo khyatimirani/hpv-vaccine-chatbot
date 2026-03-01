@@ -5,9 +5,7 @@ import pytest
 
 # Stub heavy optional dependencies before any chatbot modules are imported
 for _mod in [
-    "sentence_transformers",
     "llama_cpp",
-    "torch",
     "unstructured",
     "unstructured.partition",
     "unstructured.partition.auto",

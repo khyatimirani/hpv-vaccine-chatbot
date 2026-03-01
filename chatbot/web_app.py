@@ -41,7 +41,6 @@ from entities.document import Document
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
-from memory_builder import auto_seed_index
 
 logger = get_logger(__name__)
 
@@ -172,12 +171,16 @@ def create_app(parameters) -> Flask:
 
     # Initialise shared resources once at startup
     vector_store_path = ROOT_FOLDER / "vector_store" / "docs_index"
+    if not vector_store_path.exists():
+        raise RuntimeError(
+            f"Vector store not found at {vector_store_path}. "
+            "Please precompute embeddings by running scripts/generate_embeddings.py."
+        )
     llm = OpenAIClient()
     chat_history = ChatHistory(total_length=2)
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
     embedding = Embedder()
     index = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
-    auto_seed_index(index, docs_path=ROOT_FOLDER / "docs")
 
     @app.route("/")
     def home():

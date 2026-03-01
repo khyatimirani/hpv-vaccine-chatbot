@@ -1,49 +1,33 @@
-from typing import Any
-
-import sentence_transformers
+from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 
 
 class Embedder:
-    def __init__(
-        self,
-        model_name: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-        cache_folder: str | None = None,
-        **kwargs: Any,
-    ):
+    def __init__(self, **kwargs):
         """
-        Initialize the Embedder class with the specified parameters.
+        Initialize the Embedder using chromadb's lightweight ONNX-based embedding function.
 
-        Args:
-            **kwargs (Any): Additional keyword arguments to pass to the SentenceTransformer model.
+        This embedder does NOT depend on sentence-transformers, torch, or transformers.
+        For offline embedding generation (building the vector store), use
+        scripts/generate_embeddings.py instead.
         """
-        self.client = sentence_transformers.SentenceTransformer(model_name, cache_folder=cache_folder, **kwargs)
+        self.client = DefaultEmbeddingFunction()
 
-    def embed_documents(self, texts: list[str], multi_process: bool = False, **encode_kwargs: Any) -> list[list[float]]:
+    def embed_documents(self, texts: list[str], **kwargs) -> list[list[float]]:
         """
-        Compute document embeddings using a transformer model.
+        Compute document embeddings.
 
         Args:
             texts (list[str]): The list of texts to embed.
-            multi_process (bool): If True, use multiple processes to compute embeddings.
-            **encode_kwargs (Any): Additional keyword arguments to pass when calling the `encode` method of the model.
 
         Returns:
             list[list[float]]: A list of embeddings, one for each text.
         """
-
         texts = [x.replace("\n", " ") for x in texts]
-        if multi_process:
-            pool = self.client.start_multi_process_pool()
-            embeddings = self.client.encode_multi_process(texts, pool)
-            sentence_transformers.SentenceTransformer.stop_multi_process_pool(pool)
-        else:
-            embeddings = self.client.encode(texts, normalize_embeddings=False, show_progress_bar=True, **encode_kwargs)
-
-        return embeddings.tolist()
+        return list(self.client(texts))
 
     def embed_query(self, text: str) -> list[float]:
         """
-        Compute query embeddings using a transformer model.
+        Compute query embeddings.
 
         Args:
             text (str): The text to embed.
