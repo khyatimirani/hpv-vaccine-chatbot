@@ -133,11 +133,13 @@ def answer_with_context(
 
 def trim_response(response: str, question: str) -> str:
     """
-    Trim the response to fit within character limits based on the question intent.
+    Trim the response to fit within character limits based on the question intent,
+    preserving semantic meaning by cutting only at natural boundaries.
 
     If the question contains "explain" or "detail" (case-insensitive), the response
     is trimmed to at most 512 characters. Otherwise it is trimmed to at most 200
-    characters. Trimming preserves complete sentences wherever possible.
+    characters. Trimming prefers paragraph boundaries, then sentence boundaries,
+    then word boundaries to ensure the result remains semantically complete.
 
     Args:
         response: The full answer text to trim.
@@ -153,20 +155,28 @@ def trim_response(response: str, question: str) -> str:
     if len(response) <= max_chars:
         return response
 
-    trimmed = response[:max_chars]
+    window = response[:max_chars]
 
-    # Prefer trimming at the last sentence boundary within the allowed window
-    last_sentence_end = max(trimmed.rfind("."), trimmed.rfind("!"), trimmed.rfind("?"))
+    # 1. Prefer paragraph boundary (double newline) to keep semantic blocks intact
+    last_para = window.rfind("\n\n")
+    if last_para > 0:
+        candidate = response[:last_para].rstrip()
+        # Skip boundaries that end with ":" as they precede an incomplete list
+        if candidate and not candidate.endswith(":"):
+            return candidate
 
-    if last_sentence_end > max_chars // 2:
-        return response[: last_sentence_end + 1]
+    # 2. Fall back to sentence boundary (., !, ?)
+    last_sentence_end = max(window.rfind("."), window.rfind("!"), window.rfind("?"))
+    if last_sentence_end > 0:
+        return response[:last_sentence_end + 1]
 
-    # Fall back to trimming at the last word boundary
-    last_space = trimmed.rfind(" ")
+    # 3. Last resort: word boundary – require the split to be in the second half of the
+    #    window so we do not return a meaninglessly short fragment (e.g. a single word).
+    last_space = window.rfind(" ")
     if last_space > max_chars // 2:
         return response[:last_space] + "…"
 
-    return trimmed + "…"
+    return window + "…"
 
 
 def extract_content_after_reasoning(text: str, reasoning_stop_tag: str) -> str:

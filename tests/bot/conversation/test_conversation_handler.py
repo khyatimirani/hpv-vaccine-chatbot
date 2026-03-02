@@ -88,3 +88,35 @@ def test_trim_response_case_insensitive_keywords():
     long_answer = "E" * 350
     assert len(trim_response(long_answer, "EXPLAIN this to me.")) == 350
     assert len(trim_response(long_answer, "Please Detail the vaccine.")) == 350
+
+
+def test_trim_response_colon_para_boundary_falls_back_to_sentence():
+    """When a paragraph boundary ends with ':', trimming falls back to the last sentence boundary."""
+    # Build a response that is >200 chars and whose paragraph boundary ends with ":"
+    intro = (
+        "The HPV vaccine is generally safe, and most people do not experience serious side effects."
+        " Some common and mild side effects that may occur shortly after getting the shot include:"
+    )
+    list_part = "\n\n- Soreness, redness, or swelling at the injection site\n- Headache\n- Fever"
+    response = intro + list_part  # >200 chars total
+    result = trim_response(response, "side effects of HPV")
+    # Must not end with ":" (dangling list introduction) or mid-list "," 
+    assert not result.endswith(":")
+    assert not result.endswith(",")
+    # Should end at a complete sentence
+    assert result.endswith(".")
+
+
+def test_trim_response_paragraph_boundary_used_when_semantically_complete():
+    """A paragraph boundary that does NOT end with ':' is preferred over sentence boundary."""
+    first_para = "The HPV vaccine is safe and effective. It protects against several strains."
+    second_para = (
+        "Studies show strong immunity after vaccination in adolescents and young adults."
+        " The protection lasts for many years according to long-term follow-up research."
+    )
+    response = first_para + "\n\n" + second_para
+    # Ensure response exceeds 200 chars
+    assert len(response) > 200
+    result = trim_response(response, "Tell me about the HPV vaccine.")
+    # Should cut at the paragraph boundary (after first_para)
+    assert result == first_para
