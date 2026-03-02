@@ -312,7 +312,9 @@ if __name__ == "__main__":
     try:
         args = get_args()
         flask_app = create_app(args)
-        flask_app.run(host=args.host, port=args.port, debug=False)
+        # Use PORT environment variable for Cloud Run compatibility
+        port = int(os.environ.get("PORT", args.port))
+        flask_app.run(host=args.host, port=port, debug=False)
     except Exception as error:
         logger.error(f"An error occurred: {error}", exc_info=True, stack_info=True)
         sys.exit(1)

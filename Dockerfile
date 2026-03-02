@@ -43,7 +43,7 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-EXPOSE 8000
+EXPOSE 8080
 
-# Gunicorn serves the Flask app created by chatbot/web_app.py
+# Gunicorn serves the Flask app created by chatbot/web_app.py with dynamic port for Cloud Run
 CMD ["gunicorn", "--config", "gunicorn.conf.py", "wsgi:app"]

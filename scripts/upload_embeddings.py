@@ -51,7 +51,7 @@ def upload_embeddings(
         chunk_overlap: Overlap between consecutive chunks.
     """
     logger.info("Loading documents from: %s", docs_path)
-    loader = DirectoryLoader(path=docs_path, glob="**/*.md")
+    loader = DirectoryLoader(path=docs_path, glob="**/*.txt")
     documents = loader.load()
     if not documents:
         logger.warning("No documents found in %s. Exiting.", docs_path)
