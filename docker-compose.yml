@@ -10,14 +10,11 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    volumes:
-      # Persist the vector-store index across container restarts
-      - vector_store:/app/vector_store
     expose:
       - "8000"
     healthcheck:
       test: ["CMD", "python", "-c",
-             "import urllib.request, sys; r = urllib.request.urlopen('http://localhost:8000/'); sys.exit(0 if r.status == 200 else 1)"]
+             "import urllib.request, sys; r = urllib.request.urlopen('http://localhost:8000/health'); sys.exit(0 if r.status == 200 else 1)"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -41,5 +38,4 @@ services:
       - app
 
 volumes:
-  vector_store:
   certbot_webroot:

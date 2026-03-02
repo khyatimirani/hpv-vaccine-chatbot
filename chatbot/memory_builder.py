@@ -1,9 +1,5 @@
-import argparse
-import sys
 from pathlib import Path
 
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
 from document_loader.format import Format
 from document_loader.loader import DirectoryLoader
 from document_loader.text_splitter import create_recursive_text_splitter
@@ -52,36 +48,21 @@ def split_chunks(sources: list, chunk_size: int = 512, chunk_overlap: int = 25) 
     return chunks
 
 
-def build_memory_index(docs_path: Path, vector_store_path: str, chunk_size: int, chunk_overlap: int):
-    logger.info(f"Loading documents from: {docs_path}")
-    sources = load_documents(docs_path)
-    logger.info(f"Number of loaded documents: {len(sources)}")
-
-    logger.info("Chunking documents...")
-    chunks = split_chunks(sources, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    logger.info(f"Number of generated chunks: {len(chunks)}")
-
-    logger.info("Creating memory index...")
-    embedding = Embedder()
-    vector_database = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
-    vector_database.from_chunks(chunks)
-    logger.info("Memory Index has been created successfully!")
-
-
-def auto_seed_index(index: Chroma, docs_path: Path, chunk_size: int = 512, chunk_overlap: int = 25) -> None:
+def auto_seed_index(index, docs_path: Path, chunk_size: int = 512, chunk_overlap: int = 25) -> None:
     """
-    Automatically seeds the vector store from the docs directory if the collection is empty.
+    Automatically seeds the vector store from the docs directory if the index is empty.
 
     This is called at application startup so that the chatbot works out-of-the-box
-    without needing to run memory_builder.py separately.
+    without needing to run the upload script separately.
 
     Args:
-        index (Chroma): The Chroma vector store instance.
-        docs_path (Path): Path to the directory containing Markdown source documents.
+        index: The vector store instance. Must expose a ``count()`` method and a
+            ``from_chunks(chunks)`` method.
+        docs_path (Path): Path to the directory containing source documents.
         chunk_size (int): Maximum size of each text chunk. Defaults to 512.
         chunk_overlap (int): Overlap between consecutive chunks. Defaults to 25.
     """
-    if index.collection.count() > 0:
+    if index.count() > 0:
         return
 
     logger.info("Vector store is empty — seeding from docs directory...")
@@ -89,7 +70,7 @@ def auto_seed_index(index: Chroma, docs_path: Path, chunk_size: int = 512, chunk
         logger.warning(f"Docs path does not exist: {docs_path}. Skipping auto-seed.")
         return
 
-    loader = DirectoryLoader(path=docs_path, glob="**/*.txt")
+    loader = DirectoryLoader(path=docs_path, glob="**/*.md")
     documents = loader.load()
     if not documents:
         logger.warning("No Markdown documents found in docs directory. Skipping auto-seed.")
@@ -103,44 +84,3 @@ def auto_seed_index(index: Chroma, docs_path: Path, chunk_size: int = 512, chunk
     index.from_chunks(chunks)
     logger.info("Vector store seeded successfully.")
 
-
-def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Memory Builder")
-    parser.add_argument(
-        "--chunk-size",
-        type=int,
-        help="The maximum size of each chunk. Defaults to 512.",
-        required=False,
-        default=512,
-    )
-    parser.add_argument(
-        "--chunk-overlap",
-        type=int,
-        help="The amount of overlap between consecutive chunks. Defaults to 25.",
-        required=False,
-        default=25,
-    )
-
-    return parser.parse_args()
-
-
-def main(parameters):
-    root_folder = Path(__file__).resolve().parent.parent
-    doc_path = root_folder / "docs"
-    vector_store_path = root_folder / "vector_store" / "docs_index"
-
-    build_memory_index(
-        doc_path,
-        str(vector_store_path),
-        parameters.chunk_size,
-        parameters.chunk_overlap,
-    )
-
-
-if __name__ == "__main__":
-    try:
-        args = get_args()
-        main(args)
-    except Exception as error:
-        logger.error(f"An error occurred: {str(error)}", exc_info=True, stack_info=True)
-        sys.exit(1)

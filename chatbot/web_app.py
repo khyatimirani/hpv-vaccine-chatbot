@@ -12,6 +12,7 @@ Run with:
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from bot.conversation.conversation_handler import (
     answer_with_context,
     extract_content_after_reasoning,
     refine_question,
+    trim_response,
 )
 from bot.conversation.ctx_strategy import (
     get_ctx_synthesis_strategies,
@@ -32,8 +34,9 @@ from bot.conversation.intent_classifier import (
     classify_intent,
     get_rag_query,
 )
-from bot.memory.embedder import Embedder
-from bot.memory.vector_database.chroma import Chroma
+from bot.memory.openai_embedder import embed
+from bot.memory.vector_database.id_generator import generate_deterministic_id
+from bot.memory.vector_database.pinecone_store import PineconeStore
 from document_loader.format import Format
 from document_loader.text_splitter import create_recursive_text_splitter
 from eligibility import check_eligibility
@@ -41,7 +44,6 @@ from entities.document import Document
 from flask import Flask, jsonify, render_template, request, send_from_directory
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
-from memory_builder import auto_seed_index
 
 logger = get_logger(__name__)
 
@@ -61,7 +63,7 @@ def _get_myth_vs_fact():
     return jsonify({"content": "Myth vs Fact content not found."}), 404
 
 
-def _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters):
+def _post_chat(llm, ctx_synthesis_strategy, chat_history, pinecone_store, parameters):
     """Handle a chat message and return the assistant response."""
     data = request.get_json(silent=True) or {}
     user_input = (data.get("message") or "").strip()
@@ -76,9 +78,26 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters):
 
         rag_input = get_rag_query(user_input)
         refined_input = refine_question(llm, rag_input, chat_history=chat_history, max_new_tokens=128)
-        retrieved_contents, sources = index.similarity_search_with_threshold(
-            query=refined_input, k=parameters.k
-        )
+
+        query_embedding = embed(refined_input)
+        matches = pinecone_store.query(query_embedding, top_k=parameters.k)
+        retrieved_contents = [
+            Document(
+                page_content=m.metadata.get("text", ""),
+                metadata={"source": m.metadata.get("source", "")},
+            )
+            for m in matches
+            if m.metadata.get("text")
+        ]
+        sources = [
+            {
+                "score": round(m.score, 3),
+                "document": m.metadata.get("source"),
+                "content_preview": m.metadata.get("text", "")[:256] + "...",
+            }
+            for m in matches
+            if m.metadata.get("text")
+        ]
 
         if not retrieved_contents:
             safety_msg = (
@@ -102,6 +121,7 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters):
         else:
             answer = full_response
 
+        answer = trim_response(answer, rag_input)
         chat_history.append(f"question: {rag_input}, answer: {answer}")
 
         source_list = [prettify_source(s) for s in sources]
@@ -139,7 +159,7 @@ def _post_eligibility():
     )
 
 
-def _post_upload_document(index, parameters):
+def _post_upload_document(pinecone_store, parameters):
     """Add an uploaded Markdown document to the knowledge base."""
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
@@ -157,7 +177,16 @@ def _post_upload_document(index, parameters):
         format=Format.MARKDOWN.value, chunk_size=parameters.chunk_size, chunk_overlap=parameters.chunk_overlap
     )
     chunks = splitter.split_documents([document])
-    index.from_chunks(chunks)
+
+    vectors = []
+    for chunk in chunks:
+        text = chunk.page_content
+        source = chunk.metadata.get("source", "")
+        vector_id = generate_deterministic_id(text)
+        embedding = embed(text)
+        vectors.append({"id": vector_id, "values": embedding, "metadata": {"text": text, "source": source}})
+
+    pinecone_store.upsert(vectors)
     return jsonify({"message": f"Added {len(chunks)} chunk(s) from '{filename}'."})
 
 
@@ -171,13 +200,15 @@ def create_app(parameters) -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # Initialise shared resources once at startup
-    vector_store_path = ROOT_FOLDER / "vector_store" / "docs_index"
+    index_name = os.environ.get("PINECONE_INDEX_NAME", "hpv-assistant")
     llm = OpenAIClient()
     chat_history = ChatHistory(total_length=2)
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
-    embedding = Embedder()
-    index = Chroma(is_persistent=True, persist_directory=str(vector_store_path), embedding=embedding)
-    auto_seed_index(index, docs_path=ROOT_FOLDER / "docs")
+    pinecone_store = PineconeStore(index_name=index_name)
+
+    @app.route("/health")
+    def health():
+        return jsonify({"status": "ok"}), 200
 
     @app.route("/")
     def home():
@@ -193,7 +224,7 @@ def create_app(parameters) -> Flask:
 
     @app.route("/api/chat", methods=["POST"])
     def chat():
-        return _post_chat(llm, ctx_synthesis_strategy, chat_history, index, parameters)
+        return _post_chat(llm, ctx_synthesis_strategy, chat_history, pinecone_store, parameters)
 
     @app.route("/api/eligibility", methods=["POST"])
     def eligibility():
@@ -201,7 +232,7 @@ def create_app(parameters) -> Flask:
 
     @app.route("/api/upload-document", methods=["POST"])
     def upload_document():
-        return _post_upload_document(index, parameters)
+        return _post_upload_document(pinecone_store, parameters)
 
     @app.route("/api/clear-history", methods=["POST"])
     def clear_history():

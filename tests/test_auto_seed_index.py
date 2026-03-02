@@ -22,9 +22,9 @@ from memory_builder import auto_seed_index  # noqa: E402
 
 @pytest.fixture
 def mock_index():
-    """A mock Chroma index with an empty collection."""
+    """A mock vector store index with an empty collection."""
     index = MagicMock()
-    index.collection.count.return_value = 0
+    index.count.return_value = 0
     return index
 
 
@@ -40,7 +40,7 @@ def docs_dir(tmp_path):
 def test_auto_seed_skips_when_already_populated(docs_dir):
     """auto_seed_index should be a no-op when the collection already has documents."""
     index = MagicMock()
-    index.collection.count.return_value = 5
+    index.count.return_value = 5
 
     auto_seed_index(index, docs_path=docs_dir)
 
@@ -86,3 +86,4 @@ def test_auto_seed_calls_from_chunks_when_empty(mock_index, docs_dir):
 
         MockLoader.assert_called_once_with(path=docs_dir, glob="**/*.md")
         mock_index.from_chunks.assert_called_once_with([fake_doc])
+
