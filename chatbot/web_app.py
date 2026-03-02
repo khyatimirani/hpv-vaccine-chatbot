@@ -204,7 +204,7 @@ def create_app(parameters) -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # Initialise shared resources once at startup
-    index_name = os.environ.get("PINECONE_INDEX_NAME", "hpv-assistant").strip()
+    index_name = os.environ.get("PINECONE_INDEX_NAME", "hpv-guide-v2").strip()
     llm = OpenAIClient()
     chat_history = ChatHistory(total_length=2)
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
