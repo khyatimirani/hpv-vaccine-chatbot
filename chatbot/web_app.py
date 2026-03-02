@@ -65,6 +65,8 @@ def _get_myth_vs_fact():
 
 def _post_chat(llm, ctx_synthesis_strategy, chat_history, pinecone_store, parameters):
     """Handle a chat message and return the assistant response."""
+    if pinecone_store is None:
+        return jsonify({"error": "Vector store is unavailable. Please check server configuration."}), 503
     data = request.get_json(silent=True) or {}
     user_input = (data.get("message") or "").strip()
     if not user_input:
@@ -161,6 +163,8 @@ def _post_eligibility():
 
 def _post_upload_document(pinecone_store, parameters):
     """Add an uploaded Markdown document to the knowledge base."""
+    if pinecone_store is None:
+        return jsonify({"error": "Vector store is unavailable. Please check server configuration."}), 503
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
 
@@ -200,11 +204,17 @@ def create_app(parameters) -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # Initialise shared resources once at startup
-    index_name = os.environ.get("PINECONE_INDEX_NAME", "hpv-assistant")
+    index_name = os.environ.get("PINECONE_INDEX_NAME", "hpv-assistant").strip()
     llm = OpenAIClient()
     chat_history = ChatHistory(total_length=2)
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
-    pinecone_store = PineconeStore(index_name=index_name)
+    try:
+        pinecone_store = PineconeStore(index_name=index_name)
+    except Exception as exc:  # broad catch intentional: any init failure must not crash workers
+        logger.error(
+            "Pinecone initialisation failed: %s. Chat and upload endpoints will be unavailable.", exc
+        )
+        pinecone_store = None
 
     @app.route("/health")
     def health():

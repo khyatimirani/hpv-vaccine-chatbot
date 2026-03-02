@@ -24,9 +24,13 @@ class PineconeStore:
             index_name: Name of the Pinecone index to use.
         """
         load_dotenv()
-        api_key = os.environ.get("PINECONE_API_KEY")
+        api_key = (os.environ.get("PINECONE_API_KEY") or "").strip()
         if not api_key:
-            raise ValueError("PINECONE_API_KEY environment variable is not set.")
+            raise ValueError("PINECONE_API_KEY environment variable is not set or is empty.")
+        index_name = index_name.strip()
+        if not index_name:
+            raise ValueError("Pinecone index name must not be empty.")
+        logger.info("Initialising Pinecone client (index=%r).", index_name)
         self._pc = Pinecone(api_key=api_key)
         self._index = self._pc.Index(index_name)
 

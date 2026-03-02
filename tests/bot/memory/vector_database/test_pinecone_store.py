@@ -25,6 +25,43 @@ def test_initialization(monkeypatch):
         PineconeStore(index_name="test-index")
 
 
+def test_api_key_whitespace_only_raises(monkeypatch):
+    """PineconeStore raises ValueError when PINECONE_API_KEY contains only whitespace."""
+    monkeypatch.setenv("PINECONE_API_KEY", "  \n\t  ")
+    with pytest.raises(ValueError, match="PINECONE_API_KEY"):
+        PineconeStore(index_name="test-index")
+
+
+def test_api_key_trailing_newline_is_stripped(monkeypatch):
+    """PineconeStore strips trailing newlines from PINECONE_API_KEY before use."""
+    monkeypatch.setenv("PINECONE_API_KEY", "valid-key\n")
+    with patch("bot.memory.vector_database.pinecone_store.Pinecone") as MockPinecone:
+        mock_pc = MagicMock()
+        MockPinecone.return_value = mock_pc
+        mock_pc.Index.return_value = MagicMock()
+        PineconeStore(index_name="test-index")
+        MockPinecone.assert_called_once_with(api_key="valid-key")
+
+
+def test_index_name_whitespace_stripped(monkeypatch):
+    """PineconeStore strips whitespace from index_name and uses the clean value."""
+    monkeypatch.setenv("PINECONE_API_KEY", "valid-key")
+    with patch("bot.memory.vector_database.pinecone_store.Pinecone") as MockPinecone:
+        mock_pc = MagicMock()
+        MockPinecone.return_value = mock_pc
+        mock_pc.Index.return_value = MagicMock()
+        PineconeStore(index_name="  test-index\n")
+        mock_pc.Index.assert_called_once_with("test-index")
+
+
+def test_empty_index_name_raises(monkeypatch):
+    """PineconeStore raises ValueError when index_name is empty after stripping."""
+    monkeypatch.setenv("PINECONE_API_KEY", "valid-key")
+    with patch("bot.memory.vector_database.pinecone_store.Pinecone"):
+        with pytest.raises(ValueError, match="index name"):
+            PineconeStore(index_name="  \n  ")
+
+
 def test_query_returns_matches(pinecone_store):
     """query() calls the Pinecone index and returns match objects."""
     mock_match = MagicMock()
