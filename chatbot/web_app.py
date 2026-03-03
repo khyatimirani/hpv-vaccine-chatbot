@@ -14,6 +14,8 @@ Run with:
 import argparse
 import os
 import sys
+import uuid
+from collections import OrderedDict
 from pathlib import Path
 
 from bot.client.openai_client import OpenAIClient
@@ -41,13 +43,14 @@ from document_loader.format import Format
 from document_loader.text_splitter import create_recursive_text_splitter
 from eligibility import check_eligibility
 from entities.document import Document
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_from_directory, session
 from helpers.log import get_logger
 from helpers.prettier import prettify_source
 
 logger = get_logger(__name__)
 
 ROOT_FOLDER = Path(__file__).resolve().parent.parent
+_MAX_SESSIONS = 500
 
 
 # ---------------------------------------------------------------------------
@@ -63,7 +66,7 @@ def _get_myth_vs_fact():
     return jsonify({"content": "Myth vs Fact content not found."}), 404
 
 
-def _post_chat(llm, ctx_synthesis_strategy, chat_history, pinecone_store, parameters):
+def _post_chat(llm, ctx_synthesis_strategy, chat_histories, history_total_length, pinecone_store, parameters):
     """Handle a chat message and return the assistant response."""
     if pinecone_store is None:
         return jsonify({"error": "Vector store is unavailable. Please check server configuration."}), 503
@@ -71,6 +74,16 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, pinecone_store, parame
     user_input = (data.get("message") or "").strip()
     if not user_input:
         return jsonify({"error": "Empty message"}), 400
+
+    session_id = session.get("session_id")
+    if not session_id:
+        session_id = str(uuid.uuid4())
+        session["session_id"] = session_id
+    if session_id not in chat_histories:
+        if len(chat_histories) >= _MAX_SESSIONS:
+            chat_histories.popitem(last=False)
+        chat_histories[session_id] = ChatHistory(total_length=history_total_length)
+    chat_history = chat_histories[session_id]
 
     try:
         # Pre-RAG intent classification — skip RAG for non-health queries
@@ -203,11 +216,21 @@ def _post_upload_document(pinecone_store, parameters):
 def create_app(parameters) -> Flask:
     """Create and configure the Flask application."""
     app = Flask(__name__, template_folder="templates", static_folder="static")
+    secret_key = os.environ.get("SECRET_KEY")
+    if not secret_key:
+        logger.warning(
+            "SECRET_KEY environment variable is not set. "
+            "A random key will be used, which means all user sessions will be invalidated on restart. "
+            "Set SECRET_KEY in production to preserve sessions across restarts."
+        )
+        secret_key = os.urandom(24)
+    app.secret_key = secret_key
 
     # Initialise shared resources once at startup
     index_name = os.environ.get("PINECONE_INDEX_NAME", "hpv-guide-v2").strip()
     llm = OpenAIClient()
-    chat_history = ChatHistory(total_length=2)
+    history_total_length = 2
+    chat_histories: OrderedDict[str, ChatHistory] = OrderedDict()
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
     try:
         pinecone_store = PineconeStore(index_name=index_name)
@@ -237,7 +260,7 @@ def create_app(parameters) -> Flask:
 
     @app.route("/api/chat", methods=["POST"])
     def chat():
-        return _post_chat(llm, ctx_synthesis_strategy, chat_history, pinecone_store, parameters)
+        return _post_chat(llm, ctx_synthesis_strategy, chat_histories, history_total_length, pinecone_store, parameters)
 
     @app.route("/api/eligibility", methods=["POST"])
     def eligibility():
@@ -249,7 +272,9 @@ def create_app(parameters) -> Flask:
 
     @app.route("/api/clear-history", methods=["POST"])
     def clear_history():
-        chat_history.clear()
+        session_id = session.get("session_id")
+        if session_id and session_id in chat_histories:
+            chat_histories[session_id].clear()
         return jsonify({"message": "Conversation history cleared."})
 
     return app
