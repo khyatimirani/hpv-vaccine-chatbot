@@ -23,6 +23,12 @@ class ChatHistory(list):
             self.pop(0)
         super().append(msg)
 
+    def clear(self):
+        """
+        Clear all messages from the chat history, resetting it to an empty state.
+        """
+        super().clear()
+
     def __str__(self):
         """
         Get the chat history as a single string.
