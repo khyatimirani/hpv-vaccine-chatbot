@@ -123,7 +123,8 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_history, pinecone_store, parame
         else:
             answer = full_response
 
-        answer = trim_response(answer, rag_input)
+        # TODO: Re-enable response trimming for better UX
+        # answer = trim_response(answer, rag_input)
         chat_history.append(f"question: {rag_input}, answer: {answer}")
 
         source_list = [prettify_source(s) for s in sources]
@@ -278,9 +279,9 @@ def get_args() -> argparse.Namespace:
     parser.add_argument(
         "--k",
         type=int,
-        help="Number of chunks to return from similarity search. Defaults to 2.",
+        help="Number of chunks to return from similarity search. Defaults to 3.",
         required=False,
-        default=2,
+        default=3,
     )
     parser.add_argument(
         "--max-new-tokens",
