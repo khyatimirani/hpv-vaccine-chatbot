@@ -43,7 +43,7 @@ gcloud run deploy $SERVICE_NAME \
   --timeout 300 \
   --min-instances 0 \
   --max-instances 10 \
-  --set-env-vars "OPENAI_API_KEY=${OPENAI_API_KEY},PINECONE_API_KEY=${PINECONE_API_KEY},PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME}"
+  --set-env-vars OPENAI_API_KEY=$OPENAI_API_KEY,PINECONE_API_KEY=$PINECONE_API_KEY,PINECONE_INDEX_NAME=$PINECONE_INDEX_NAME
 
 # Get the service URL
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \

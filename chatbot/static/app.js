@@ -169,10 +169,10 @@
 
   var PROMPT_CHIPS = [
     "Is HPV vaccine safe?",
-    "Who should take it?",
-    "How many doses are needed?",
-    "Is it free in India?",
-    "Does it affect fertility?"
+    "Who should take Hpv vaccine?",
+    "Cervical cancer kya hai?",
+    "Is HPV Vaccine free in India?",
+    "Does HPV Vaccine it affect fertility?"
   ];
 
   function renderPromptChips() {
