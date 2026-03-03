@@ -226,7 +226,9 @@ def create_app(parameters) -> Flask:
 
     @app.route("/images/<filename>")
     def serve_image(filename):
-        return send_from_directory(ROOT_FOLDER / "images", filename)
+        response = send_from_directory(ROOT_FOLDER / "images", filename)
+        response.headers.setdefault("Accept-Ranges", "bytes")
+        return response
 
     @app.route("/api/myth-vs-fact")
     def myth_vs_fact():
