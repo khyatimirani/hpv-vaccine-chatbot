@@ -97,12 +97,6 @@ class IamcredentailsApi(object):
     self.max_retry_wait = GetMaxRetryDelay()
     self.api_client.max_retry_wait = self.max_retry_wait
 
-    if isinstance(self.credentials, NoOpCredentials):
-      # This API key is not secret and is used to identify gsutil during
-      # anonymous requests.
-      self.api_client.AddGlobalParam(
-          'key', u'AIzaSyDnacJHrKma0048b13sh8cgxNUwulubmJM')
-
   def SignBlob(self, service_account_id, message):
     """Sign the blob using iamcredentials.SignBlob API."""
     name = 'projects/-/serviceAccounts/%s' % service_account_id
