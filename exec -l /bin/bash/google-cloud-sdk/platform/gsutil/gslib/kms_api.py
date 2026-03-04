@@ -92,12 +92,6 @@ class KmsApi(object):
     self.max_retry_wait = GetMaxRetryDelay()
     self.api_client.max_retry_wait = self.max_retry_wait
 
-    if isinstance(self.credentials, NoOpCredentials):
-      # This API key is not secret and is used to identify gsutil during
-      # anonymous requests.
-      self.api_client.AddGlobalParam(
-          'key', u'AIzaSyDnacJHrKma0048b13sh8cgxNUwulubmJM')
-
   def GetKeyIamPolicy(self, key_name):
     request = (apitools_messages.
                CloudkmsProjectsLocationsKeyRingsCryptoKeysGetIamPolicyRequest(

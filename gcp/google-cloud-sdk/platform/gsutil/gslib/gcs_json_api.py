@@ -336,12 +336,6 @@ class GcsJsonApi(CloudApi):
         status_queue=self.status_queue)
     self.api_client.overwrite_transfer_urls_with_client_base = True
 
-    if isinstance(self.credentials, NoOpCredentials):
-      # This API key is not secret and is used to identify gsutil during
-      # anonymous requests.
-      self.api_client.AddGlobalParam('key',
-                                     'AIzaSyDnacJHrKma0048b13sh8cgxNUwulubmJM')
-
   def GetServiceAccountId(self):
     """Returns the service account email id."""
     if isinstance(self.credentials, ImpersonationCredentials):
