@@ -1,0 +1,197 @@
+{
+  "quiz_items": [
+    {
+      "type": "flashcard",
+      "statement": "The HPV vaccine can treat existing HPV infections.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "The HPV vaccine is preventive only. It does not treat existing HPV infections, genital warts, or cervical cancer.",
+      "encouragement_message": "Great thinking! Understanding prevention helps people make informed health decisions."
+    },
+    {
+      "type": "flashcard",
+      "statement": "The HPV vaccine can help protect against HPV types a person has not yet been exposed to.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Fact",
+      "explanation": "Even if someone has an existing HPV infection, vaccination may still protect against other HPV types they have not encountered.",
+      "encouragement_message": "Nice work! You're building strong awareness about HPV prevention."
+    },
+    {
+      "type": "flashcard",
+      "statement": "The HPV vaccine is only recommended for girls.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "HPV affects people of all genders. The vaccine is recommended for both males and females aged 9–26 years.",
+      "encouragement_message": "Good job! HPV prevention is important for everyone."
+    },
+    {
+      "type": "flashcard",
+      "statement": "HPV vaccination is recommended before exposure to the virus.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Fact",
+      "explanation": "The vaccine works best when given before exposure to HPV, which is why it is recommended for ages 9–14.",
+      "encouragement_message": "Great answer! Early protection provides the strongest immune response."
+    },
+    {
+      "type": "flashcard",
+      "statement": "HPV vaccines are unsafe and commonly cause serious side effects.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "HPV vaccines are extensively studied and considered safe. Most side effects are mild and temporary.",
+      "encouragement_message": "Nice work! Understanding vaccine safety helps address common concerns."
+    },
+    {
+      "type": "flashcard",
+      "statement": "HPV vaccination eliminates the need for cervical cancer screening.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "Vaccination does not replace cervical cancer screening. Regular screening is still recommended.",
+      "encouragement_message": "Correct! Prevention and screening work together to protect health."
+    },
+    {
+      "type": "flashcard",
+      "statement": "There is scientific evidence that HPV vaccines cause infertility.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "Large-scale studies have found no link between HPV vaccination and fertility problems.",
+      "encouragement_message": "Great job! You're identifying important myths correctly."
+    },
+    {
+      "type": "flashcard",
+      "statement": "Natural HPV infection provides stronger immunity than vaccination.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "Natural infection does not reliably produce lasting immunity, while the vaccine generates a stronger and safer immune response.",
+      "encouragement_message": "Excellent! Vaccines provide safer protection than infection."
+    },
+    {
+      "type": "flashcard",
+      "statement": "HPV vaccination is available free through India's Universal Immunisation Programme for eligible girls aged 9–14.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Fact",
+      "explanation": "The Government of India has introduced the HPV vaccine into the Universal Immunisation Programme for girls aged 9–14.",
+      "encouragement_message": "Well done! Public health programs play an important role in cancer prevention."
+    },
+    {
+      "type": "flashcard",
+      "statement": "Only one dose of the HPV vaccine is enough for full protection.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "Girls aged 9–14 require two doses, while those aged 15 and above require three doses for full protection.",
+      "encouragement_message": "Nice answer! Completing the recommended schedule is important."
+    },
+    {
+      "type": "flashcard",
+      "statement": "The HPV vaccine encourages sexual activity among young people.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Myth",
+      "explanation": "Research consistently shows HPV vaccination does not increase or influence sexual activity.",
+      "encouragement_message": "Great job! You're helping separate myths from evidence."
+    },
+    {
+      "type": "flashcard",
+      "statement": "HPV vaccination is a cancer prevention measure.",
+      "options": ["Myth", "Fact"],
+      "correct_answer": "Fact",
+      "explanation": "The HPV vaccine helps prevent HPV infections that can lead to cervical and other cancers.",
+      "encouragement_message": "Excellent! Understanding prevention is a powerful step toward better health."
+    },
+
+    {
+      "type": "mcq",
+      "question": "What is the primary purpose of the HPV vaccine?",
+      "options": [
+        "To treat cervical cancer",
+        "To prevent HPV infection",
+        "To cure HPV infection",
+        "To treat infertility"
+      ],
+      "correct_answer": "To prevent HPV infection",
+      "explanation": "The HPV vaccine is preventive and helps protect against HPV infections that may lead to cancers."
+    },
+    {
+      "type": "mcq",
+      "question": "Who is recommended to receive the HPV vaccine?",
+      "options": [
+        "Only girls",
+        "Only adult women",
+        "Both males and females aged 9–26",
+        "Only people with HPV infection"
+      ],
+      "correct_answer": "Both males and females aged 9–26",
+      "explanation": "HPV affects people of all genders, and vaccination is recommended for both males and females."
+    },
+    {
+      "type": "mcq",
+      "question": "Why is HPV vaccination recommended at ages 9–14?",
+      "options": [
+        "Because immunity is weaker later",
+        "Because it works best before exposure to HPV",
+        "Because screening is not available",
+        "Because HPV infection only occurs in teenagers"
+      ],
+      "correct_answer": "Because it works best before exposure to HPV",
+      "explanation": "Vaccination before HPV exposure provides the strongest immune response."
+    },
+    {
+      "type": "mcq",
+      "question": "What is a common side effect of the HPV vaccine?",
+      "options": [
+        "Severe illness",
+        "Permanent infertility",
+        "Soreness at the injection site",
+        "Cancer"
+      ],
+      "correct_answer": "Soreness at the injection site",
+      "explanation": "Most side effects are mild and temporary, such as soreness at the injection site or mild fever."
+    },
+    {
+      "type": "mcq",
+      "question": "What should vaccinated women still continue to do?",
+      "options": [
+        "Avoid screening",
+        "Continue cervical cancer screening",
+        "Stop visiting doctors",
+        "Take additional vaccines yearly"
+      ],
+      "correct_answer": "Continue cervical cancer screening",
+      "explanation": "Vaccination does not replace cervical cancer screening such as Pap smear or HPV testing."
+    },
+    {
+      "type": "mcq",
+      "question": "How many doses are recommended for girls aged 9–14?",
+      "options": [
+        "One dose",
+        "Two doses",
+        "Three doses",
+        "Four doses"
+      ],
+      "correct_answer": "Two doses",
+      "explanation": "Girls aged 9–14 are recommended to receive two doses of the HPV vaccine."
+    },
+    {
+      "type": "mcq",
+      "question": "How many doses are recommended for individuals aged 15 and above?",
+      "options": [
+        "One dose",
+        "Two doses",
+        "Three doses",
+        "Five doses"
+      ],
+      "correct_answer": "Three doses",
+      "explanation": "Those aged 15 and above require a three-dose schedule."
+    },
+    {
+      "type": "mcq",
+      "question": "Which public health program in India offers free HPV vaccination for eligible girls?",
+      "options": [
+        "National Health Mission",
+        "Universal Immunisation Programme",
+        "Ayushman Bharat",
+        "National Cancer Control Programme"
+      ],
+      "correct_answer": "Universal Immunisation Programme",
+      "explanation": "The Government of India provides HPV vaccination for eligible girls aged 9–14 under the Universal Immunisation Programme."
+    }
+  ]
+}
