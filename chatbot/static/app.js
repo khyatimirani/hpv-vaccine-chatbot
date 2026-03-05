@@ -453,6 +453,203 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Quiz — Test Your Knowledge
+  // ---------------------------------------------------------------------------
+
+  var quizState = {
+    questions: [],
+    current: 0,
+    score: 0,
+    answered: false
+  };
+
+  var startQuizBtn = document.getElementById("start-quiz-btn");
+  var quizEntryPanel = document.getElementById("quiz-entry-panel");
+  var quizPanel = document.getElementById("quiz-panel");
+  var quizProgress = document.getElementById("quiz-progress");
+  var quizBody = document.getElementById("quiz-body");
+
+  /** Fisher-Yates shuffle — returns a new shuffled array. */
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  if (startQuizBtn) {
+    startQuizBtn.addEventListener("click", function () {
+      fetch("/api/quiz")
+        .then(function (resp) { return resp.json(); })
+        .then(function (data) {
+          if (!data.quiz_items || !data.quiz_items.length) {
+            quizBody.innerHTML = "<p class='quiz-error'>Quiz data unavailable. Please try again later.</p>";
+            quizEntryPanel.classList.add("hidden");
+            quizPanel.classList.remove("hidden");
+            return;
+          }
+          quizState.questions = shuffleArray(data.quiz_items);
+          quizState.current = 0;
+          quizState.score = 0;
+          quizState.answered = false;
+          quizEntryPanel.classList.add("hidden");
+          quizPanel.classList.remove("hidden");
+          renderQuizQuestion();
+        })
+        .catch(function () {
+          quizEntryPanel.classList.add("hidden");
+          quizPanel.classList.remove("hidden");
+          quizBody.innerHTML = "<p class='quiz-error'>\u26A0\uFE0F Could not load quiz. Please try again.</p>";
+        });
+    });
+  }
+
+  function renderQuizQuestion() {
+    var total = quizState.questions.length;
+    var idx = quizState.current;
+    var item = quizState.questions[idx];
+    quizState.answered = false;
+
+    // Progress bar
+    quizProgress.innerHTML =
+      "<span class='quiz-progress-text'>Question " + (idx + 1) + " of " + total + "</span>" +
+      "<div class='quiz-progress-bar-wrap'><div class='quiz-progress-bar' style='width:" +
+      Math.round(((idx + 1) / total) * 100) + "%'></div></div>" +
+      "<span class='quiz-score-text'>Score: " + quizState.score + "</span>";
+
+    var html = "";
+
+    if (item.type === "flashcard") {
+      html += "<div class='quiz-question-label'>Statement</div>";
+      html += "<div class='quiz-question-text'>" + escHtml(item.statement) + "</div>";
+    } else {
+      html += "<div class='quiz-question-label'>Question</div>";
+      html += "<div class='quiz-question-text'>" + escHtml(item.question) + "</div>";
+    }
+
+    html += "<div class='quiz-options' id='quiz-options'>";
+    item.options.forEach(function (opt, i) {
+      html += "<button class='quiz-option-btn' data-index='" + i + "' data-value='" +
+        escHtml(opt) + "'>" + escHtml(opt) + "</button>";
+    });
+    html += "</div>";
+    html += "<div id='quiz-feedback' class='quiz-feedback hidden'></div>";
+    html += "<div id='quiz-nav' class='quiz-nav hidden'></div>";
+
+    quizBody.innerHTML = html;
+
+    // Attach option click handlers
+    var optionBtns = quizBody.querySelectorAll(".quiz-option-btn");
+    optionBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (quizState.answered) return;
+        handleQuizAnswer(btn.getAttribute("data-value"), item);
+      });
+    });
+  }
+
+  function handleQuizAnswer(selected, item) {
+    quizState.answered = true;
+    var isCorrect = selected === item.correct_answer;
+    if (isCorrect) quizState.score += 1;
+
+    // Highlight selected and correct options
+    var optionBtns = quizBody.querySelectorAll(".quiz-option-btn");
+    optionBtns.forEach(function (btn) {
+      var val = btn.getAttribute("data-value");
+      btn.disabled = true;
+      if (val === item.correct_answer) {
+        btn.classList.add("quiz-option-correct");
+      } else if (val === selected && !isCorrect) {
+        btn.classList.add("quiz-option-wrong");
+      }
+    });
+
+    // Feedback
+    var feedbackEl = document.getElementById("quiz-feedback");
+    var feedbackHtml = "";
+
+    if (isCorrect) {
+      feedbackHtml += "<div class='quiz-result quiz-result-correct'>";
+      feedbackHtml += "<span class='quiz-result-icon'>\uD83C\uDF89</span> <strong>Correct!</strong>";
+      feedbackHtml += "</div>";
+    } else {
+      feedbackHtml += "<div class='quiz-result quiz-result-wrong'>";
+      feedbackHtml += "<span class='quiz-result-icon'>\uD83D\uDC4F</span> <strong>Not quite — but great attempt!</strong>";
+      feedbackHtml += "<div class='quiz-correct-answer'>Correct answer: <em>" + escHtml(item.correct_answer) + "</em></div>";
+      feedbackHtml += "</div>";
+    }
+
+    if (item.explanation) {
+      feedbackHtml += "<div class='quiz-explanation'><strong>Explanation:</strong> " + escHtml(item.explanation) + "</div>";
+    }
+
+    if (isCorrect && item.encouragement_message) {
+      feedbackHtml += "<div class='quiz-encouragement'>\uD83C\uDF1F " + escHtml(item.encouragement_message) + "</div>";
+    }
+
+    feedbackEl.innerHTML = feedbackHtml;
+    feedbackEl.classList.remove("hidden");
+
+    // Navigation button
+    var navEl = document.getElementById("quiz-nav");
+    var isLast = quizState.current >= quizState.questions.length - 1;
+    if (isLast) {
+      navEl.innerHTML = "<button class='quiz-next-btn' id='quiz-finish-btn'>See My Results \u2192</button>";
+      navEl.classList.remove("hidden");
+      document.getElementById("quiz-finish-btn").addEventListener("click", showQuizResults);
+    } else {
+      navEl.innerHTML = "<button class='quiz-next-btn' id='quiz-next-btn'>Next Question \u2192</button>";
+      navEl.classList.remove("hidden");
+      document.getElementById("quiz-next-btn").addEventListener("click", function () {
+        quizState.current += 1;
+        renderQuizQuestion();
+      });
+    }
+  }
+
+  function showQuizResults() {
+    var total = quizState.questions.length;
+    var score = quizState.score;
+    var pct = Math.round((score / total) * 100);
+
+    var msg = "";
+    if (pct === 100) {
+      msg = "\uD83C\uDFC6 Outstanding! You got a perfect score!";
+    } else if (pct >= 75) {
+      msg = "\uD83C\uDF1F Great work! You\u2019re well-informed about HPV vaccination.";
+    } else if (pct >= 50) {
+      msg = "\uD83D\uDCAA Nice effort! Keep learning \u2014 every fact you know helps protect your health.";
+    } else {
+      msg = "\uD83C\uDF31 You\u2019re learning important health facts. Consider exploring the Myths & Facts section to learn more.";
+    }
+
+    quizBody.innerHTML =
+      "<div class='quiz-results'>" +
+      "<div class='quiz-results-score'>" + score + "<span class='quiz-results-total'> / " + total + "</span></div>" +
+      "<div class='quiz-results-pct'>" + pct + "% correct</div>" +
+      "<div class='quiz-results-msg'>" + msg + "</div>" +
+      "<p class='quiz-results-disclaimer'>\u2695\uFE0F This quiz is for educational purposes only and does not constitute medical advice.</p>" +
+      "<button class='quiz-next-btn quiz-restart-btn' id='quiz-restart-btn'>\uD83D\uDD04 Try Again</button>" +
+      "</div>";
+
+    quizProgress.innerHTML =
+      "<span class='quiz-progress-text'>Quiz Complete!</span>" +
+      "<div class='quiz-progress-bar-wrap'><div class='quiz-progress-bar' style='width:100%'></div></div>" +
+      "<span class='quiz-score-text'>Final Score: " + score + "/" + total + "</span>";
+
+    document.getElementById("quiz-restart-btn").addEventListener("click", function () {
+      quizState.questions = shuffleArray(quizState.questions);
+      quizState.current = 0;
+      quizState.score = 0;
+      quizState.answered = false;
+      renderQuizQuestion();
+    });
+  }
+
+  // ---------------------------------------------------------------------------
   // Document upload
   // ---------------------------------------------------------------------------
 

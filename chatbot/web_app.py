@@ -12,6 +12,7 @@ Run with:
 """
 
 import argparse
+import json
 import os
 import sys
 import uuid
@@ -64,6 +65,18 @@ def _get_myth_vs_fact():
     if myth_path.exists():
         return jsonify({"content": myth_path.read_text(encoding="utf-8")})
     return jsonify({"content": "Myth vs Fact content not found."}), 404
+
+
+def _get_quiz():
+    """Return quiz questions from quiz.json."""
+    quiz_path = ROOT_FOLDER / "docs" / "quiz.json"
+    if not quiz_path.exists():
+        return jsonify({"error": "Quiz data not found."}), 404
+    try:
+        return jsonify(json.loads(quiz_path.read_text(encoding="utf-8")))
+    except json.JSONDecodeError:
+        logger.error("quiz.json contains invalid JSON")
+        return jsonify({"error": "Quiz data is unavailable."}), 500
 
 
 def _post_chat(llm, ctx_synthesis_strategy, chat_histories, history_total_length, pinecone_store, parameters):
@@ -257,6 +270,10 @@ def create_app(parameters) -> Flask:
     @app.route("/api/myth-vs-fact")
     def myth_vs_fact():
         return _get_myth_vs_fact()
+
+    @app.route("/api/quiz")
+    def quiz_data():
+        return _get_quiz()
 
     @app.route("/api/chat", methods=["POST"])
     def chat():
