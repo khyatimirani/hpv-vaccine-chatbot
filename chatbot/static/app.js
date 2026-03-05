@@ -433,26 +433,6 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Sidebar
-  // ---------------------------------------------------------------------------
-
-  var sidebarToggle = document.getElementById("sidebar-toggle");
-  var sidebar = document.getElementById("sidebar");
-  var sidebarClose = document.getElementById("sidebar-close");
-
-  if (sidebarToggle) {
-    sidebarToggle.addEventListener("click", function () {
-      sidebar.classList.toggle("hidden");
-    });
-  }
-
-  if (sidebarClose) {
-    sidebarClose.addEventListener("click", function () {
-      sidebar.classList.add("hidden");
-    });
-  }
-
-  // ---------------------------------------------------------------------------
   // Quiz — Test Your Knowledge
   // ---------------------------------------------------------------------------
 
@@ -649,39 +629,4 @@
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Document upload
-  // ---------------------------------------------------------------------------
-
-  var uploadForm = document.getElementById("upload-form");
-  var uploadResult = document.getElementById("upload-result");
-
-  if (uploadForm) {
-    uploadForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var fileInput = document.getElementById("upload-file");
-      if (!fileInput.files.length) {
-        uploadResult.textContent = "Please select a file first.";
-        return;
-      }
-
-      var formData = new FormData();
-      formData.append("file", fileInput.files[0]);
-
-      uploadResult.textContent = "Uploading\u2026";
-
-      fetch("/api/upload-document", {
-        method: "POST",
-        body: formData,
-      })
-        .then(function (resp) { return resp.json(); })
-        .then(function (data) {
-          uploadResult.textContent = data.message || data.error || "Done.";
-          fileInput.value = "";
-        })
-        .catch(function () {
-          uploadResult.textContent = "\u26A0\uFE0F Upload failed. Please try again.";
-        });
-    });
-  }
 })();
