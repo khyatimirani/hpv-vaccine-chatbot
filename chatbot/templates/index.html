@@ -114,6 +114,27 @@
             <p class="loading-text">Loading…</p>
           </div>
         </div>
+
+        <!-- Test Your Knowledge entry point -->
+        <div id="quiz-entry-panel" class="quiz-entry-panel">
+          <div class="quiz-entry-inner">
+            <span class="quiz-entry-icon">📝</span>
+            <div class="quiz-entry-text">
+              <h2 class="quiz-entry-title">Test Your Knowledge</h2>
+              <p class="quiz-entry-desc">Think you know the facts about HPV vaccination? Take this short quiz to find out!</p>
+            </div>
+            <button id="start-quiz-btn" class="start-quiz-btn">Start Quiz →</button>
+          </div>
+        </div>
+
+        <!-- Quiz panel (hidden until quiz starts) -->
+        <div id="quiz-panel" class="quiz-panel hidden">
+          <div class="quiz-header">
+            <h2 class="quiz-title">📝 Test Your Knowledge — HPV Vaccine</h2>
+            <div id="quiz-progress" class="quiz-progress"></div>
+          </div>
+          <div id="quiz-body" class="quiz-body"></div>
+        </div>
       </section>
 
       <!-- ===== Eligibility Checker Tab ===== -->
