@@ -43,6 +43,27 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# ---------------------------------------------------------------------------
+# Environment Variables (must be set at runtime, not build time)
+# ---------------------------------------------------------------------------
+# Required:
+#   OPENAI_API_KEY      - OpenAI API key for embeddings and chat
+#   PINECONE_API_KEY    - Pinecone API key for vector database
+#   PINECONE_INDEX_NAME - Name of the Pinecone index
+#
+# Optional:
+#   SECRET_KEY          - Flask secret key for session management
+#   PORT                - Server port (default: 8000, Cloud Run sets 8080)
+#   SYNTHESIS_STRATEGY  - Context synthesis strategy
+#   RAG_K               - Number of chunks from similarity search
+#   MAX_NEW_TOKENS      - Maximum tokens to generate
+#
+# Set via:
+#   docker run: docker run -e OPENAI_API_KEY=xxx -e PINECONE_API_KEY=xxx ...
+#   docker-compose: env_file: .env (see docker-compose.yml)
+#   Cloud Run: --set-env-vars or --set-secrets (see deploy.sh)
+# ---------------------------------------------------------------------------
+
 EXPOSE 8080
 
 # Gunicorn serves the Flask app created by chatbot/web_app.py with dynamic port for Cloud Run

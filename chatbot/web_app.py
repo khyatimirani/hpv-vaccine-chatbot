@@ -7,8 +7,13 @@ Provides a clean, polished web interface with three sections:
   - Eligibility Checker
 
 Run with:
-    python chatbot/web_app.py [--synthesis-strategy STRATEGY] [--k K] \
+    python chatbot/web_app.py [--synthesis-strategy STRATEGY] [--k K] \\
                               [--max-new-tokens N] [--host HOST] [--port PORT]
+
+Required environment variables (set via .env file or export):
+    OPENAI_API_KEY      - OpenAI API key for embeddings and chat
+    PINECONE_API_KEY    - Pinecone API key for vector database
+    PINECONE_INDEX_NAME - Name of the Pinecone index (defaults to 'hpv-guide-v2')
 """
 
 import argparse
@@ -19,34 +24,40 @@ import uuid
 from collections import OrderedDict
 from pathlib import Path
 
-from bot.client.openai_client import OpenAIClient
-from bot.conversation.chat_history import ChatHistory
-from bot.conversation.conversation_handler import (
+# Load environment variables from .env file early, before other imports
+# that may depend on environment variables (like OpenAI, Pinecone clients)
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from bot.client.openai_client import OpenAIClient  # noqa: E402
+from bot.conversation.chat_history import ChatHistory  # noqa: E402
+from bot.conversation.conversation_handler import (  # noqa: E402
     answer_with_context,
     extract_content_after_reasoning,
     refine_question,
     trim_response,
 )
-from bot.conversation.ctx_strategy import (
+from bot.conversation.ctx_strategy import (  # noqa: E402
     get_ctx_synthesis_strategies,
     get_ctx_synthesis_strategy,
 )
-from bot.conversation.intent_classifier import (
+from bot.conversation.intent_classifier import (  # noqa: E402
     PREDEFINED_RESPONSES,
     VALID_HEALTH_QUERY,
     classify_intent,
     get_rag_query,
 )
-from bot.memory.openai_embedder import embed
-from bot.memory.vector_database.id_generator import generate_deterministic_id
-from bot.memory.vector_database.pinecone_store import PineconeStore
-from document_loader.format import Format
-from document_loader.text_splitter import create_recursive_text_splitter
-from eligibility import check_eligibility
-from entities.document import Document
-from flask import Flask, jsonify, render_template, request, send_from_directory, session
-from helpers.log import get_logger
-from helpers.prettier import prettify_source
+from bot.memory.openai_embedder import embed  # noqa: E402
+from bot.memory.vector_database.id_generator import generate_deterministic_id  # noqa: E402
+from bot.memory.vector_database.pinecone_store import PineconeStore  # noqa: E402
+from document_loader.format import Format  # noqa: E402
+from document_loader.text_splitter import create_recursive_text_splitter  # noqa: E402
+from eligibility import check_eligibility  # noqa: E402
+from entities.document import Document  # noqa: E402
+from flask import Flask, jsonify, render_template, request, send_from_directory, session  # noqa: E402
+from helpers.log import get_logger  # noqa: E402
+from helpers.prettier import prettify_source  # noqa: E402
 
 logger = get_logger(__name__)
 
