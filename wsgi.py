@@ -10,11 +10,25 @@ Environment variables can override the default parameters:
     MAX_NEW_TOKENS      – max tokens to generate (default: 512)
     CHUNK_SIZE          – document chunk size (default: 1000)
     CHUNK_OVERLAP       – document chunk overlap (default: 50)
+
+Required environment variables (must be set via deployment or .env file):
+    OPENAI_API_KEY      – OpenAI API key for embeddings and chat
+    PINECONE_API_KEY    – Pinecone API key for vector database
+    PINECONE_INDEX_NAME – Name of the Pinecone index (defaults to 'hpv-guide-v2')
+    SECRET_KEY          – Flask secret key for session management (optional, but recommended)
 """
 
 import os
 import sys
 from pathlib import Path
+
+# Load environment variables from .env file FIRST, before any other imports.
+# This ensures environment variables are available when modules are imported.
+# Note: In production (Docker/Cloud Run), environment variables should be
+# set via the deployment configuration, not .env files.
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Ensure the chatbot package is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent / "chatbot"))
