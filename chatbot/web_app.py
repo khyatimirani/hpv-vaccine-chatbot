@@ -19,6 +19,10 @@ import uuid
 from collections import OrderedDict
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from bot.client.openai_client import OpenAIClient
 from bot.conversation.chat_history import ChatHistory
 from bot.conversation.conversation_handler import (
