@@ -255,7 +255,9 @@ def create_app(parameters) -> Flask:
 
     @app.route("/health")
     def health():
-        return jsonify({"status": "ok"}), 200
+        if pinecone_store is None:
+            return jsonify({"status": "degraded", "vector_store": "unavailable"}), 503
+        return jsonify({"status": "ok", "vector_store": "available"}), 200
 
     @app.route("/")
     def home():
