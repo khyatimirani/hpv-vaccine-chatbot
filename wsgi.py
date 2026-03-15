@@ -16,6 +16,12 @@ import os
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+# Load .env before any application modules so that environment variables
+# (OPENAI_API_KEY, PINECONE_API_KEY, etc.) are available at import time.
+load_dotenv()
+
 # Ensure the chatbot package is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent / "chatbot"))
 

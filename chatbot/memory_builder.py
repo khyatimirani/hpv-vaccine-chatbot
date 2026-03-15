@@ -21,7 +21,7 @@ def load_documents(docs_path: Path) -> list[Document]:
     """
     loader = DirectoryLoader(
         path=docs_path,
-        glob="**/*.txt",
+        glob="**/*.md",
         show_progress=True,
     )
     return loader.load()
@@ -70,7 +70,7 @@ def auto_seed_index(index, docs_path: Path, chunk_size: int = 512, chunk_overlap
         logger.warning(f"Docs path does not exist: {docs_path}. Skipping auto-seed.")
         return
 
-    loader = DirectoryLoader(path=docs_path, glob="**/*.txt")
+    loader = DirectoryLoader(path=docs_path, glob="**/*.md")
     documents = loader.load()
     if not documents:
         logger.warning("No Markdown documents found in docs directory. Skipping auto-seed.")
