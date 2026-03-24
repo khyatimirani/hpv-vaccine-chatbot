@@ -21,6 +21,7 @@ tests/
 .pre-commit-config.yaml
 *.md
 !README.md
+!docs/**
 
 # Secrets — never bake these into the image
 .env

@@ -132,7 +132,7 @@ def answer_with_context(
 
 
 # Keywords that indicate the user wants a longer, more detailed answer.
-# When any of these appear in the question the limit is raised to 300 chars;
+# When any of these appear in the question the limit is raised to 512 chars;
 # otherwise the default limit of 200 chars applies.
 _DETAIL_KEYWORDS = (
     "explain",
@@ -161,7 +161,7 @@ def trim_response(response: str, question: str) -> str:
     preserving semantic meaning by cutting only at natural boundaries.
 
     If the question contains a detail-seeking keyword (e.g. "explain", "describe",
-    "why", "how does") the response is trimmed to at most 300 characters.
+    "why", "how does") the response is trimmed to at most 512 characters.
     All other questions use a limit of 200 characters.
     Trimming prefers paragraph boundaries, then sentence boundaries, then word
     boundaries to ensure the result remains semantically complete.
@@ -175,7 +175,7 @@ def trim_response(response: str, question: str) -> str:
     """
     question_lower = question.lower()
     is_detailed = any(kw in question_lower for kw in _DETAIL_KEYWORDS)
-    max_chars = 300 if is_detailed else 200
+    max_chars = 512 if is_detailed else 200
 
     if len(response) <= max_chars:
         return response
