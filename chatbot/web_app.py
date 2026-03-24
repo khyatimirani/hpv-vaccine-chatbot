@@ -149,8 +149,9 @@ def _post_chat(llm, ctx_synthesis_strategy, chat_histories, history_total_length
         else:
             answer = full_response
 
-        # TODO: Re-enable response trimming for better UX
-        # answer = trim_response(answer, rag_input)
+        # Trim to 200 chars for regular questions, 300 for detail-seeking questions,
+        # cutting only at natural sentence or paragraph boundaries.
+        answer = trim_response(answer, rag_input)
         chat_history.append(f"question: {rag_input}, answer: {answer}")
 
         source_list = [prettify_source(s) for s in sources]

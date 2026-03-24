@@ -131,15 +131,40 @@ def answer_with_context(
     return streamer, fmt_prompts
 
 
+# Keywords that indicate the user wants a longer, more detailed answer.
+# When any of these appear in the question the limit is raised to 300 chars;
+# otherwise the default limit of 200 chars applies.
+_DETAIL_KEYWORDS = (
+    "explain",
+    "detail",
+    "describe",
+    "elaborate",
+    "tell me more",
+    "more about",
+    "comprehensive",
+    "in depth",
+    "in-depth",
+    "how does",
+    "how do",
+    "why is",
+    "why does",
+    "why should",
+    "why do",
+    "what causes",
+    "what happens",
+)
+
+
 def trim_response(response: str, question: str) -> str:
     """
     Trim the response to fit within character limits based on the question intent,
     preserving semantic meaning by cutting only at natural boundaries.
 
-    If the question contains "explain" or "detail" (case-insensitive), the response
-    is trimmed to at most 512 characters. Otherwise it is trimmed to at most 200
-    characters. Trimming prefers paragraph boundaries, then sentence boundaries,
-    then word boundaries to ensure the result remains semantically complete.
+    If the question contains a detail-seeking keyword (e.g. "explain", "describe",
+    "why", "how does") the response is trimmed to at most 300 characters.
+    All other questions use a limit of 200 characters.
+    Trimming prefers paragraph boundaries, then sentence boundaries, then word
+    boundaries to ensure the result remains semantically complete.
 
     Args:
         response: The full answer text to trim.
@@ -149,8 +174,8 @@ def trim_response(response: str, question: str) -> str:
         The (possibly trimmed) response string.
     """
     question_lower = question.lower()
-    is_detailed = "explain" in question_lower or "detail" in question_lower
-    max_chars = 512 if is_detailed else 200
+    is_detailed = any(kw in question_lower for kw in _DETAIL_KEYWORDS)
+    max_chars = 300 if is_detailed else 200
 
     if len(response) <= max_chars:
         return response

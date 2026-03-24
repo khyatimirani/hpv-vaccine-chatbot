@@ -55,25 +55,46 @@ def test_trim_response_default_limit_200():
     assert len(result) <= 200 + 1  # +1 for possible ellipsis character
 
 
-def test_trim_response_explain_keyword_allows_512():
-    """'explain' in question raises the limit to 512 chars."""
-    long_answer = "B" * 350
+def test_trim_response_explain_keyword_allows_300():
+    """'explain' in question raises the limit to 300 chars (response under 300 unchanged)."""
+    long_answer = "B" * 250
     result = trim_response(long_answer, "Can you explain the HPV vaccine?")
-    assert len(result) == 350  # under 512, should be unchanged
+    assert len(result) == 250  # under 300, should be unchanged
 
 
-def test_trim_response_detail_keyword_allows_512():
-    """'detail' in question raises the limit to 512 chars."""
-    long_answer = "C" * 400
+def test_trim_response_detail_keyword_allows_300():
+    """'detail' in question raises the limit to 300 chars (response under 300 unchanged)."""
+    long_answer = "C" * 250
     result = trim_response(long_answer, "Give me detail on the HPV schedule.")
-    assert len(result) == 400  # under 512, should be unchanged
+    assert len(result) == 250  # under 300, should be unchanged
 
 
-def test_trim_response_explain_keyword_still_trims_beyond_512():
-    """Even with 'explain', responses longer than 512 chars are trimmed."""
-    long_answer = "D" * 600
+def test_trim_response_explain_keyword_trims_beyond_300():
+    """Even with 'explain', responses longer than 300 chars are trimmed."""
+    long_answer = "D" * 400
     result = trim_response(long_answer, "Please explain HPV vaccination.")
-    assert len(result) <= 512 + 1  # +1 for possible ellipsis character
+    assert len(result) <= 300 + 1  # +1 for possible ellipsis character
+
+
+def test_trim_response_describe_keyword_allows_300():
+    """'describe' in question uses the 300-char detailed limit."""
+    long_answer = "F" * 250
+    result = trim_response(long_answer, "Can you describe the vaccine schedule?")
+    assert len(result) == 250
+
+
+def test_trim_response_why_keyword_allows_300():
+    """'why should' in question uses the 300-char detailed limit."""
+    long_answer = "G" * 250
+    result = trim_response(long_answer, "Why should I get the HPV vaccine?")
+    assert len(result) == 250
+
+
+def test_trim_response_how_does_keyword_allows_300():
+    """'how does' in question uses the 300-char detailed limit."""
+    long_answer = "H" * 250
+    result = trim_response(long_answer, "How does the HPV vaccine work?")
+    assert len(result) == 250
 
 
 def test_trim_response_preserves_sentence_boundary():
@@ -85,9 +106,9 @@ def test_trim_response_preserves_sentence_boundary():
 
 def test_trim_response_case_insensitive_keywords():
     """Keyword matching is case-insensitive."""
-    long_answer = "E" * 350
-    assert len(trim_response(long_answer, "EXPLAIN this to me.")) == 350
-    assert len(trim_response(long_answer, "Please Detail the vaccine.")) == 350
+    long_answer = "E" * 250
+    assert len(trim_response(long_answer, "EXPLAIN this to me.")) == 250
+    assert len(trim_response(long_answer, "Please Detail the vaccine.")) == 250
 
 
 def test_trim_response_colon_para_boundary_falls_back_to_sentence():
