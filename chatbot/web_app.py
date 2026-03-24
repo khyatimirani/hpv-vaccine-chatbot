@@ -240,16 +240,22 @@ def create_app(parameters) -> Flask:
     app.secret_key = secret_key
 
     # Initialise shared resources once at startup
-    index_name = os.environ.get("PINECONE_INDEX_NAME", "hpv-guide-v2").strip()
+    # Use `or` so an empty-string env var also falls back to the default.
+    index_name = (os.environ.get("PINECONE_INDEX_NAME") or "hpv-guide-v2").strip()
     llm = OpenAIClient()
     history_total_length = 2
     chat_histories: OrderedDict[str, ChatHistory] = OrderedDict()
     ctx_synthesis_strategy = get_ctx_synthesis_strategy(parameters.synthesis_strategy, llm=llm)
     try:
         pinecone_store = PineconeStore(index_name=index_name)
+        logger.info("Pinecone store initialised successfully (index=%r).", index_name)
     except Exception as exc:  # broad catch intentional: any init failure must not crash workers
         logger.error(
-            "Pinecone initialisation failed: %s. Chat and upload endpoints will be unavailable.", exc
+            "Pinecone initialisation failed (%s: %s). "
+            "Ensure PINECONE_API_KEY and PINECONE_INDEX_NAME are set correctly. "
+            "Chat and upload endpoints will be unavailable.",
+            type(exc).__name__,
+            exc,
         )
         pinecone_store = None
 
