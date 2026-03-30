@@ -79,36 +79,15 @@
 
     <!-- Tab navigation -->
     <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="chat">💬 Ask a Question</button>
-      <button class="tab-btn" data-tab="myth">📋 Myth vs Fact</button>
+      <button class="tab-btn active" data-tab="myth">📋 Myth vs Fact</button>
       <button class="tab-btn" data-tab="eligibility">💉 Eligibility Checker</button>
+      <button class="tab-btn" data-tab="chat">💬 Ask a Question</button>
     </nav>
 
     <main class="app-main">
 
-      <!-- ===== Ask a Question Tab ===== -->
-      <section id="tab-chat" class="tab-panel active">
-        <div class="chat-container">
-          <div id="chat-messages" class="chat-messages"></div>
-          <div id="prompt-chips" class="prompt-chips"></div>
-          <form id="chat-form" class="chat-form" autocomplete="off">
-            <input
-              id="chat-input"
-              type="text"
-              class="chat-input"
-              placeholder="Ask a question about the HPV vaccine (English or Hindi)…"
-              aria-label="Chat message"
-            />
-            <button type="submit" class="send-btn" aria-label="Send">&#9654;</button>
-          </form>
-          <div class="chat-actions">
-            <button id="clear-btn" class="action-btn">🗑️ Clear Conversation</button>
-          </div>
-        </div>
-      </section>
-
       <!-- ===== Myth vs Fact Tab ===== -->
-      <section id="tab-myth" class="tab-panel hidden">
+      <section id="tab-myth" class="tab-panel active">
         <div class="content-panel">
           <div id="myth-content" class="myth-content">
             <p class="loading-text">Loading…</p>
@@ -173,6 +152,27 @@
           </form>
 
           <div id="eligibility-result" class="eligibility-result hidden"></div>
+        </div>
+      </section>
+
+      <!-- ===== Ask a Question Tab ===== -->
+      <section id="tab-chat" class="tab-panel hidden">
+        <div class="chat-container">
+          <div id="chat-messages" class="chat-messages"></div>
+          <div id="prompt-chips" class="prompt-chips"></div>
+          <form id="chat-form" class="chat-form" autocomplete="off">
+            <input
+              id="chat-input"
+              type="text"
+              class="chat-input"
+              placeholder="Ask a question about the HPV vaccine (English or Hindi)…"
+              aria-label="Chat message"
+            />
+            <button type="submit" class="send-btn" aria-label="Send">&#9654;</button>
+          </form>
+          <div class="chat-actions">
+            <button id="clear-btn" class="action-btn">🗑️ Clear Conversation</button>
+          </div>
         </div>
       </section>
 
